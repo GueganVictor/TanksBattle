@@ -10,10 +10,16 @@
 #define WINDOW_HEIGHT 750
 
 typedef struct {
+    int posLig;
+    int posCol;
+    int oldPosLig;
+    int oldPosCol;
+} joueur_t;
+
+typedef struct {
     char ** tab;
     int state;
 } game_t;
-
 
 
 #endif // GAME_H_

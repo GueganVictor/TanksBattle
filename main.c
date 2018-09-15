@@ -33,10 +33,19 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    joueur_t player = {
+        .posLig = 42,
+        .posCol = 48,
+        .oldPosLig = -1,
+        .oldPosCol = -1
+    };
+
     game_t game = {
         .tab = create_tab(WINDOW_HEIGHT/TAILLE, WINDOW_WIDTH/TAILLE),
-        .state = EN_COURS
+        .state = EN_COURS,
     };
+
+    tank_update(&game, &player, 'X');
 
     const float cell_width = WINDOW_WIDTH / TAILLE;
 
@@ -48,16 +57,16 @@ int main(int argc, char *argv[])
                     game.state = FIN_JEU;
                 break;
 
-                /*case SDL_KEYDOWN:
-                if(event.key.keysym.sym == SDLK_UP)
-                    direction = HAUT;
-                else if(event.key.keysym.sym == SDLK_RIGHT)
-                    direction = DROITE;
-                else if(event.key.keysym.sym == SDLK_DOWN)
-                    direction = BAS;
-                else if(event.key.keysym.sym == SDLK_LEFT)
-                    direction = GAUCHE;
-                break;*/
+                case SDL_KEYDOWN:
+                    if(e.key.keysym.sym == SDLK_UP)
+                        deplacer('N', &player, &game);
+                    else if(e.key.keysym.sym == SDLK_RIGHT)
+                        deplacer('E', &player, &game);
+                    else if(e.key.keysym.sym == SDLK_DOWN)
+                        deplacer('S', &player, &game);
+                    else if(e.key.keysym.sym == SDLK_LEFT)
+                        deplacer('O', &player, &game);
+                    break;
 
                 default: {}
             }

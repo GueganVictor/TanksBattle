@@ -33,6 +33,10 @@ void render_game(SDL_Renderer *renderer, const game_t *game) {
                     SDL_SetRenderDrawColor( renderer, 255, 100, 100, 255 );
                     SDL_RenderFillRect( renderer, &rect );
                 break;
+                case 'X':
+                    SDL_SetRenderDrawColor( renderer, 0, 255, 0, 255 );
+                    SDL_RenderFillRect( renderer, &rect );
+                break;
                 default: {}
             }
             posX = posX + TAILLE;
