@@ -3,7 +3,7 @@
 
 char ** alloc_tab (int lig, int col) {
     char** array = malloc(lig*sizeof(char*));
-    for (int i = 0; i < col; i++) {
+    for (int i = 0; i < lig; i++) {
         array[i] = malloc(col*sizeof(char));
     }
     return array;
@@ -45,14 +45,6 @@ void show_tab_term (int nbLig, int nbCol, char ** tab) {
     for (int lig = 0; lig < nbLig; lig++) {
         for (int col = 0; col < nbCol; col++) {
             printf("%c-", tab[lig][col]);
-            /*switch (tab[lig][col]) {
-                case 1:
-                    printf("█");
-                break;
-                case 0:
-                    printf(" ");
-                break;
-            }*/
         }
         printf("  -  lig %d\n", lig);
     }
@@ -64,7 +56,7 @@ char ** create_tab(int nbLig, int nbCol) {
     //int **tab = alloc_tab(nbLig, nbCol);
     char **tab = alloc_tab(nbLig, nbCol);
     remplissage_tab(nbLig, nbCol, tab);
-    show_tab_term(nbLig, nbCol, tab);
+    //show_tab_term(nbLig, nbCol, tab);
     return tab;
 
 }
