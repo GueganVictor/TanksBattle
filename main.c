@@ -2,17 +2,25 @@
 #include <stdio.h>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include "./model/jeu.h"
+
 //#include "./view/GUI.h"
-#include "./view/GUI.c"
-#include "./controler/carte.c"
+//#include "./view/GUI.c"
+//#include "./controler/carte.c"
 //#include "./model/controler.h"
 
 
 
 int main(int argc, char *argv[])
 {
+
+    SDL_Surface *surface;
+    SDL_Texture *texture;
+    SDL_Rect r = { 10, 10, 50, 50 };
+    SDL_Rect clip = { 0, 0, 180, 200 };
+
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "Could not initialize sdl2: %s\n", SDL_GetError());
         return EXIT_FAILURE;
@@ -33,21 +41,32 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    joueur_t player = {
-        .posLig = 42,
-        .posCol = 48,
-        .oldPosLig = -1,
-        .oldPosCol = -1
-    };
-
     game_t game = {
-        .tab = create_tab(WINDOW_HEIGHT/TAILLE, WINDOW_WIDTH/TAILLE),
+        .tab = NULL,//create_tab(WINDOW_HEIGHT/TAILLE, WINDOW_WIDTH/TAILLE),
         .state = EN_COURS,
     };
 
-    tank_update(&game, &player, 'X');
+    tank_t joueur = {
+        .direction = 'E',
+        .pos_lig = 42,
+        .pos_col = 49,
+        .blindage = 2,
 
-    const float cell_width = WINDOW_WIDTH / TAILLE;
+        .type = 'J',
+        .etat = 1,
+
+        .blindage_orig = 2,
+        .nb_hit = 0,
+
+        .nxt = NULL
+    };
+
+
+
+    surface = IMG_Load("res/tanks.png");
+    texture = SDL_CreateTextureFromSurface(renderer,surface);
+
+
 
     SDL_Event e;
     while (game.state != FIN_JEU) {
@@ -58,23 +77,44 @@ int main(int argc, char *argv[])
                 break;
 
                 case SDL_KEYDOWN:
-                    if(e.key.keysym.sym == SDLK_UP)
-                        deplacer('N', &player, &game);
-                    else if(e.key.keysym.sym == SDLK_RIGHT)
-                        deplacer('E', &player, &game);
-                    else if(e.key.keysym.sym == SDLK_DOWN)
-                        deplacer('S', &player, &game);
-                    else if(e.key.keysym.sym == SDLK_LEFT)
-                        deplacer('O', &player, &game);
+                    switch (e.key.keysym.sym) {
+                        case SDLK_UP:
+                            r.y -= 15;
+                            //deplacer('N', &player, &game);
+                        break;
+                        case SDLK_RIGHT:
+                            r.x += 15;
+                            //deplacer('E', &player, &game);
+                        break;
+                        case SDLK_DOWN:
+                            r.y += 15;
+                            //deplacer('S', &player, &game);
+                        break;
+                        case SDLK_LEFT:
+                            r.x -= 15;
+                            //deplacer('O', &player, &game);
+                        break;
+                        case SDLK_SPACE:
+                            //shoot();
+                        break;
+                    };
                     break;
-
                 default: {}
             }
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-        render_game(renderer, &game);
         SDL_RenderPresent(renderer);
+        SDL_RenderClear(renderer);
+
+        //SDL_SetRenderDrawColor( renderer, 0, 0, 255, 255 );
+        SDL_RenderFillRect( renderer, &r );
+        SDL_SetRenderTarget(renderer, texture);
+        SDL_RenderCopy(renderer,texture,&clip,&r);
+
+        SDL_SetRenderTarget(renderer, NULL);
+
+        // render things
+
     }
 
     SDL_DestroyWindow(window);

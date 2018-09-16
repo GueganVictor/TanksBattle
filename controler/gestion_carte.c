@@ -9,28 +9,6 @@ char ** alloc_tab (int lig, int col) {
     return array;
 }
 
-
-int verif_char(char c) {
-    if ( c > 31 && c < 123 ) {
-        return 1;
-    }
-    return 0;
-}
-
-void tank_update( game_t *game, joueur_t *joueur, char car) {
-    int posLig = joueur->posLig;
-    int posCol = joueur->posCol;
-    game->tab[posLig][posCol] = car;
-    game->tab[posLig+1][posCol] = car;
-    game->tab[posLig][posCol+1] = car;
-    game->tab[posLig][posCol-1] = car;
-    game->tab[posLig-1][posCol] = car;
-    game->tab[posLig+1][posCol-1] = car;
-    game->tab[posLig+1][posCol+1] = car;
-    game->tab[posLig-1][posCol+1] = car;
-    game->tab[posLig-1][posCol-1] = car;
-}
-
 void deplacer(char dir, joueur_t *joueur, game_t *game ) {
     joueur->oldPosCol = joueur->posCol;
     joueur->oldPosLig = joueur->posLig;
@@ -53,7 +31,6 @@ void deplacer(char dir, joueur_t *joueur, game_t *game ) {
     tank_update(game, joueur, 'X');
 }
 
-
 void remplissage_tab(int nbLig, int nbCol, char** tab) {
     char * fichier = "res/map.data";
     int c;
@@ -73,11 +50,9 @@ void remplissage_tab(int nbLig, int nbCol, char** tab) {
                 }
             }
         }
-        //printf("%d * %d\n", joueur->posX, joueur->posY );
         fclose(file);
     }
 }
-
 
 void show_tab_term (int nbLig, int nbCol, char ** tab) {
 
@@ -99,20 +74,3 @@ char ** create_tab(int nbLig, int nbCol) {
     return tab;
 
 }
-
-
-/*
-
-switch (tab[lig][lig]) {
-  case 'M':
-    printf("█");
-  break;
-  case '0':
-    putint(' ');
-  break;
-  default:
-    putint((tab[lig][lig]));
-  break;
-}
-
- */
