@@ -6,6 +6,8 @@
 
 #include "./model/jeu.h"
 
+#include "./controler/gestion_carte.c"
+
 //#include "./view/GUI.h"
 //#include "./view/GUI.c"
 //#include "./controler/carte.c"
@@ -18,6 +20,8 @@ int main(int argc, char *argv[])
 
     SDL_Surface *surface;
     SDL_Texture *texture;
+    double angle = 0.0;
+    SDL_RendererFlip flipType = SDL_FLIP_HORIZONTAL;
     SDL_Rect r = { 10, 10, 50, 50 };
     SDL_Rect clip = { 0, 0, 180, 200 };
 
@@ -26,7 +30,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    SDL_Window *window = SDL_CreateWindow("Tanks Battle", 100, 100, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    SDL_Window *window = SDL_CreateWindow("Tanks Battle", 100, 100, LARGEUR_FENTRE, HAUTEUR_FENTRE, SDL_WINDOW_SHOWN);
 
     if (window == NULL) {
         fprintf(stderr, "SDL_CreateWindow Error : %s", SDL_GetError() );
@@ -42,7 +46,7 @@ int main(int argc, char *argv[])
     }
 
     game_t game = {
-        .tab = NULL,//create_tab(WINDOW_HEIGHT/TAILLE, WINDOW_WIDTH/TAILLE),
+        .tab = create_tab(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),//create_tab(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),
         .state = EN_COURS,
     };
 
@@ -66,8 +70,6 @@ int main(int argc, char *argv[])
     surface = IMG_Load("res/tanks.png");
     texture = SDL_CreateTextureFromSurface(renderer,surface);
 
-
-
     SDL_Event e;
     while (game.state != FIN_JEU) {
         while (SDL_PollEvent(&e)) {
@@ -80,18 +82,24 @@ int main(int argc, char *argv[])
                     switch (e.key.keysym.sym) {
                         case SDLK_UP:
                             r.y -= 15;
+                            angle = 0;
                             //deplacer('N', &player, &game);
                         break;
                         case SDLK_RIGHT:
                             r.x += 15;
+                            flipType = SDL_FLIP_VERTICAL;
+                            angle = 90;
                             //deplacer('E', &player, &game);
                         break;
                         case SDLK_DOWN:
                             r.y += 15;
+                            angle = 180;
                             //deplacer('S', &player, &game);
                         break;
                         case SDLK_LEFT:
                             r.x -= 15;
+                            flipType = SDL_FLIP_VERTICAL;
+                            angle = -90;
                             //deplacer('O', &player, &game);
                         break;
                         case SDLK_SPACE:
@@ -106,11 +114,11 @@ int main(int argc, char *argv[])
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
 
-        //SDL_SetRenderDrawColor( renderer, 0, 0, 255, 255 );
+
         SDL_RenderFillRect( renderer, &r );
         SDL_SetRenderTarget(renderer, texture);
-        SDL_RenderCopy(renderer,texture,&clip,&r);
-
+        SDL_RenderCopyEx(renderer,texture,&clip,&r,angle, NULL, flipType);
+        //render_game();
         SDL_SetRenderTarget(renderer, NULL);
 
         // render things

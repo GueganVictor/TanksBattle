@@ -9,26 +9,24 @@ char ** alloc_tab (int lig, int col) {
     return array;
 }
 
-void deplacer(char dir, joueur_t *joueur, game_t *game ) {
-    joueur->oldPosCol = joueur->posCol;
-    joueur->oldPosLig = joueur->posLig;
-    tank_update(game, joueur, ' ');
+void deplacer(char dir, tank_t *tank, game_t *game ) {
+    //tank_update(game, tank, ' ');
     switch (dir) {
         case 'N':
-            joueur->posLig = joueur->posLig-1;
+            tank->pos_lig = tank->pos_lig-1;
         break;
         case 'O':
-            joueur->posCol = joueur->posCol-1;
+            tank->pos_col = tank->pos_col-1;
         break;
         case 'S':
-            joueur->posLig = joueur->posLig+1;
+            tank->pos_lig = tank->pos_lig+1;
         break;
         case 'E':
-            joueur->posCol = joueur->posCol+1;
+            tank->pos_col = tank->pos_col+1;
         break;
     }
 
-    tank_update(game, joueur, 'X');
+    //tank_update(game, tank, 'X');
 }
 
 void remplissage_tab(int nbLig, int nbCol, char** tab) {
@@ -42,7 +40,7 @@ void remplissage_tab(int nbLig, int nbCol, char** tab) {
         for (int lig = 0; lig < nbLig; lig++) {
             for (int col = 0; col < nbCol; col++) {
                 if (((c = getc(file)) != EOF)) {
-                    if ( verif_char(c)) {
+                    if ( c > 31 && c < 123 ){
                         tab[lig][col] = c;
                     } else {
                         col--;
