@@ -1,0 +1,4 @@
+Map variable :
+
+    M = Mur 
+    m =

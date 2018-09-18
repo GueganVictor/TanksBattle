@@ -3,11 +3,11 @@
 
 
 // VARIABLES FENETRE
-#define LARGEUR_FENTRE 1500
-#define HAUTEUR_FENTRE 750
+#define LARGEUR_FENTRE 1600
+#define HAUTEUR_FENTRE 800
 
 // TAILLE CELLULE
-#define TAILLE 15
+#define TAILLE 16
 
 // ETAT JEU
 #define EN_COURS 0
@@ -53,5 +53,12 @@ typedef struct {
     int state;
 } game_t;
 
+SDL_Texture * tilemap_sol;
+SDL_Texture * tanks;
+
+SDL_Surface *surface;
+SDL_Texture *texture;
+double angle = 0.0;
+SDL_RendererFlip flipType;
 
 #endif // GAME_H_
