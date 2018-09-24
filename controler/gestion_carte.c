@@ -24,7 +24,6 @@ void tank_update( game_t *game, tank_t *tank, char car) {
 }
 
 void show_tab_term (int nbLig, int nbCol, char ** tab) {
-
     for (int lig = 0; lig < nbLig; lig++) {
         for (int col = 0; col < nbCol; col++) {
             printf("%c-", tab[lig][col]);
@@ -36,23 +35,67 @@ void show_tab_term (int nbLig, int nbCol, char ** tab) {
 
 void deplacer(tank_t *tank, game_t *game ) {
     tank_update(game, tank, '.');
+
+    int col, lig;
     switch (tank->direction) {
         case 'N':
-            tank->pos_lig = tank->pos_lig-1;
+            if (tank->pos_lig == 1) {
+                break;
+            } else {
+                lig = tank->pos_lig-2;
+                col = tank->pos_col-1;
+                if (game->tab[lig][col] == '.' && game->tab[lig][col+1] == '.' && game->tab[lig][col+2] == '.') {
+                    tank->pos_lig = tank->pos_lig-1;
+                }
+            }
+
         break;
         case 'O':
-            tank->pos_col = tank->pos_col-1;
+            if (tank->pos_col == 1) {
+                break;
+            } else {
+                lig = tank->pos_lig-1;
+                col = tank->pos_col-2;
+                if (game->tab[lig][col] == '.' && game->tab[lig+1][col] == '.' && game->tab[lig+2][col] == '.') {
+                    tank->pos_col = tank->pos_col-1;
+                }
+            }
         break;
         case 'S':
-            tank->pos_lig = tank->pos_lig+1;
+            if (tank->pos_lig == HAUTEUR_FENTRE/TAILLE-2) {
+                break;
+            } else {
+                lig = tank->pos_lig+2;
+                col = tank->pos_col-1;
+                if (game->tab[lig][col] == '.' && game->tab[lig][col+1] == '.' && game->tab[lig][col+2] == '.') {
+                    tank->pos_lig = tank->pos_lig+1;
+                }
+            }
         break;
         case 'E':
-            tank->pos_col = tank->pos_col+1;
+            if (tank->pos_col == LARGEUR_FENTRE/TAILLE-2) {
+                break;
+            } else {
+                lig = tank->pos_lig-1;
+                col = tank->pos_col+2;
+                if (game->tab[lig][col] == '.' && game->tab[lig+1][col] == '.' && game->tab[lig+2][col] == '.') {
+                    tank->pos_col = tank->pos_col+1;
+                }
+            }
         break;
     }
-
     tank_update(game, tank, 'X');
-    show_tab_term(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE, game->tab);
+    if (tank->type == 'E') {
+        tank_update(game, tank, 'E');
+    }
+
+    //show_tab_term(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE, game->tab);
+}
+
+int verif_deplacement (tank_t * tank, game_t * game) {
+
+
+
 }
 
 void remplissage_tab(int nbLig, int nbCol, char** tab) {

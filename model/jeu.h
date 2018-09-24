@@ -22,7 +22,10 @@
 #define EN_VIE 0
 #define EXPLOSION 1
 
-typedef struct {
+
+
+typedef struct tank_t tank_t;
+struct tank_t {
     char direction;
     int pos_lig;
     int pos_col;
@@ -35,7 +38,7 @@ typedef struct {
     int nb_hit;
 
     struct tank_t * nxt;
-} tank_t;
+};
 
 typedef struct {
     char direction;

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -9,6 +10,7 @@
 #include "./view/GUI.c"
 
 #include "./controler/gestion_carte.c"
+#include "./controler/gestion_liste.c"
 
 //#include "./view/GUI.h"
 //#include "./view/GUI.c"
@@ -20,10 +22,12 @@
 int main(int argc, char *argv[])
 {
 
-    flipType = SDL_FLIP_NONE;
+    srand(time(NULL));
+
     SDL_Rect r = { 10, 10, 50, 50 };
     SDL_Rect clip = { 0, 0, 180, 200 };
 
+    char * directions = "NOSE";
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "Could not initialize sdl2: %s\n", SDL_GetError());
@@ -65,13 +69,20 @@ int main(int argc, char *argv[])
         .nxt = NULL
     };
 
-    tank_update(&game, &joueur, '.');
+
+
+
+
+
+    tank_update(&game, &joueur, 'X');
 
     surface = IMG_Load("res/TileMap.png");
     tilemap_sol = SDL_CreateTextureFromSurface(renderer,surface);
 
     surface = IMG_Load("res/TanksMap.png");
     tanks = SDL_CreateTextureFromSurface(renderer,surface);
+
+    int cpt = 0;
 
     SDL_Event e;
     while (game.state != FIN_JEU) {
@@ -84,23 +95,23 @@ int main(int argc, char *argv[])
                 case SDL_KEYDOWN:
                     switch (e.key.keysym.sym) {
                         case SDLK_UP:
-                            deplacer(&joueur, &game);
+
                             joueur.direction = 'N';
                             //deplacer('N', &player, &game);
                         break;
                         case SDLK_RIGHT:
                             //flipType = SDL_FLIP_VERTICAL;
-                            deplacer(&joueur, &game);
+
                             joueur.direction = 'E';
                             //deplacer('E', &player, &game);
                         break;
                         case SDLK_DOWN:
-                            deplacer(&joueur, &game);
+
                             joueur.direction = 'S';
                             //deplacer('S', &player, &game);
                         break;
                         case SDLK_LEFT:
-                            deplacer(&joueur, &game);
+
                             joueur.direction = 'O';
                             //flipType = SDL_FLIP_VERTICAL;
                             //deplacer('O', &player, &game);
@@ -109,10 +120,20 @@ int main(int argc, char *argv[])
                             //shoot();
                         break;
                     };
+                    deplacer(&joueur, &game);
                     break;
                 default: {}
             }
         }
+
+        cpt++;
+        if (cpt == 2000) {
+            printf("ajout tank\n");
+            ajouter_tank(&joueur, &game);
+            cpt = 0;
+        }
+
+
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
