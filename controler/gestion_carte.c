@@ -26,12 +26,13 @@ void tank_update( game_t *game, tank_t *tank, char car) {
 void show_tab_term (int nbLig, int nbCol, char ** tab) {
     for (int lig = 0; lig < nbLig; lig++) {
         for (int col = 0; col < nbCol; col++) {
-            printf("%c-", tab[lig][col]);
+            printf("%c", tab[lig][col]);
         }
         printf("  -  lig %d\n", lig);
     }
     printf("\n");
 }
+
 
 void deplacer(tank_t *tank, game_t *game ) {
     tank_update(game, tank, '.');
@@ -89,7 +90,7 @@ void deplacer(tank_t *tank, game_t *game ) {
         tank_update(game, tank, 'E');
     }
 
-    //show_tab_term(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE, game->tab);
+    show_tab_term(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE, game->tab);
 }
 
 int verif_deplacement (tank_t * tank, game_t * game) {
@@ -100,7 +101,7 @@ int verif_deplacement (tank_t * tank, game_t * game) {
 
 void remplissage_tab(int nbLig, int nbCol, char** tab) {
     char * fichier = "res/map.data";
-    int c;
+    char c;
     FILE *file;
     file = fopen(fichier, "r");
     printf("remplissage carte : %d x %d\n", nbLig, nbCol );

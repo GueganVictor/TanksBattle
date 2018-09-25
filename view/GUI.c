@@ -27,11 +27,14 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
 
     SDL_Rect clipa = { 0,0, 16,16 };
 
+    int bOk = 0;
 
     int posX = 0;
     int posY = 0;
+    int oldLig = 0;
     int lig = 0;
     int col = 0;
+
     for (lig = 0; lig < HAUTEUR_FENTRE/TAILLE; lig++) {
         for (col = 0; col < LARGEUR_FENTRE/TAILLE; col++) {
             SDL_Rect rect;
@@ -62,6 +65,15 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
                     SDL_RenderFillRect( renderer, &rect );
                 break;
                 case 'E':
+                    cptTexture++;
+                    if (oldLig == lig && cptTexture > 2) {
+                        printf("nouveau tank affiche\n");
+                        cptTexture = 0;
+                        nord.x = 48;
+                        sud.x = 0;
+                        est.x = 144;
+                        ouest.x = 96;
+                    }
                     SDL_SetRenderTarget(renderer, tilemap_sol);
                     SDL_RenderCopy(renderer,tilemap_sol,&clip_grass,&rect);
                     SDL_SetRenderTarget(renderer, NULL);
@@ -81,11 +93,11 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
                         break;
                     }
                     SDL_SetRenderTarget(renderer, NULL);
+
                     nordE.x = nordE.x + 16;
                     estE.x = estE.x + 16;
                     ouestE.x = ouestE.x + 16;
                     sudE.x = sudE.x + 16;
-                    cptTexture++;
                     if (cptTexture > 2) {
                         nordE.x = 48;
                         sudE.x = 0;
@@ -144,6 +156,7 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
             }
             posX = posX + TAILLE;
         }
+        oldLig = lig;
         posX = 0;
         posY = posY + TAILLE;
     }

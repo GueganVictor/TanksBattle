@@ -72,8 +72,6 @@ int main(int argc, char *argv[])
 
 
 
-
-
     tank_update(&game, &joueur, 'X');
 
     surface = IMG_Load("res/TileMap.png");
@@ -81,6 +79,12 @@ int main(int argc, char *argv[])
 
     surface = IMG_Load("res/TanksMap.png");
     tanks = SDL_CreateTextureFromSurface(renderer,surface);
+
+    //ajouter_tank(&joueur, &game);
+
+    //ajouter_tank(&joueur, &game);
+
+
 
     int cpt = 0;
 
@@ -127,9 +131,9 @@ int main(int argc, char *argv[])
         }
 
         cpt++;
-        if (cpt == 2000) {
-            printf("ajout tank\n");
-            ajouter_tank(&joueur, &game);
+        if (cpt == 500) {
+            //deplacer_tanks(&joueur, &game);
+
             cpt = 0;
         }
 

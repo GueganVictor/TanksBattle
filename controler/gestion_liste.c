@@ -7,15 +7,35 @@
 tank_t * creer_tank() {
 
     tank_t * tank = (tank_t*)malloc(sizeof(tank_t));
-    if (rand() % 2 == 1) {
-        tank->direction = 'E';
-        tank->pos_col = 5;
-    } else {
-        tank->direction = 'O';
-        tank->pos_col = 95;
-    }
 
     tank->pos_lig = 5;
+    switch (rand() % 5) {
+        case 1:
+            tank->direction = 'E';
+            tank->pos_col = 5;
+        break;
+        case 2:
+            tank->direction = 'O';
+            tank->pos_col = 95;
+        break;
+        case 3:
+            tank->direction = 'O';
+            tank->pos_col = 95;
+            tank->pos_lig = 40;
+        break;
+        case 4:
+            tank->direction = 'E';
+            tank->pos_col = 5;
+            tank->pos_lig = 40;
+        break;
+        case 0:
+            tank->direction = 'S';
+            tank->pos_col = 50;
+            tank->pos_lig = 25;
+        break;
+    }
+
+
     tank->blindage = 2;
 
     tank->type = 'E';
@@ -33,17 +53,20 @@ tank_t * creer_tank() {
 void ajouter_tank (tank_t * liste, game_t * game) {
     tank_t * enemi =  creer_tank();
     tank_t * ptr = liste;
-    while (ptr->nxt = NULL) {
+    while (ptr->nxt != NULL) {
+        printf("%d - %d\n", ptr->pos_col, ptr->pos_lig);
         ptr = ptr->nxt;
     }
-    liste->nxt = enemi;
-    tank_update(game, liste->nxt, 'E');
+    ptr->nxt = enemi;
+    tank_update(game, ptr->nxt, 'E');
 }
 
 void deplacer_tanks (tank_t * liste, game_t * game) {
-    tank_t * enemi =  creer_tank();
-    tank_t * ptr = liste;
-    while (ptr->nxt = NULL) {
-        deplacer(ptr->nxt, game);
+    //tank_t * enemi =  creer_tank();
+    tank_t * ptr = liste->nxt;
+    while (ptr->nxt != NULL) {
+        deplacer(ptr, game);
+        ptr = ptr->nxt;
     }
+    deplacer(ptr, game);
 }
