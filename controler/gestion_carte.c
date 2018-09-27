@@ -12,6 +12,8 @@ char ** alloc_tab (int lig, int col) {
 void tank_update( game_t *game, tank_t *tank, char car) {
     int posLig = tank->pos_lig;
     int posCol = tank->pos_col;
+    game->tab[posLig-1][posCol-1] = 'T';
+    if (car == '.') { game->tab[posLig-1][posCol-1] = car; }
     game->tab[posLig][posCol] = car;
     game->tab[posLig+1][posCol] = car;
     game->tab[posLig][posCol+1] = car;
@@ -20,7 +22,6 @@ void tank_update( game_t *game, tank_t *tank, char car) {
     game->tab[posLig+1][posCol-1] = car;
     game->tab[posLig+1][posCol+1] = car;
     game->tab[posLig-1][posCol+1] = car;
-    game->tab[posLig-1][posCol-1] = car;
 }
 
 void show_tab_term (int nbLig, int nbCol, char ** tab) {
@@ -120,6 +121,16 @@ void remplissage_tab(int nbLig, int nbCol, char** tab) {
         }
         fclose(file);
     }
+}
+
+char** remp_tab_temp (int nbLig, int nbCol) {
+    char **tab = alloc_tab(nbLig, nbCol);
+    for (int lig = 0; lig < nbLig; lig++) {
+        for (int col = 0; col < nbCol; col++) {
+            tab[lig][col] == 'z';
+        }
+    }
+    return tab;
 }
 
 

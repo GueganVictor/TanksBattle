@@ -51,7 +51,8 @@ int main(int argc, char *argv[])
 
     game_t game = {
         .tab = create_tab(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),//create_tab(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),
-        .state = EN_COURS,
+        .old_tab = remp_tab_temp(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),
+        .state = EN_COURS
     };
 
     tank_t joueur = {
@@ -80,7 +81,7 @@ int main(int argc, char *argv[])
     surface = IMG_Load("res/TanksMap.png");
     tanks = SDL_CreateTextureFromSurface(renderer,surface);
 
-    //ajouter_tank(&joueur, &game);
+    ajouter_tank(&joueur, &game);
 
     //ajouter_tank(&joueur, &game);
 
@@ -129,7 +130,6 @@ int main(int argc, char *argv[])
                 default: {}
             }
         }
-
         cpt++;
         if (cpt == 500) {
             //deplacer_tanks(&joueur, &game);
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
         SDL_RenderClear(renderer);
         render_game(renderer, &game, &joueur);
         // render things
-
+        game.old_tab = game.tab;
 
     }
 

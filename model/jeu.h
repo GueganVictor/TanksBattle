@@ -53,6 +53,7 @@ typedef struct {
 
 typedef struct {
     char ** tab;
+    char ** old_tab;
     int state;
 } game_t;
 
@@ -63,5 +64,11 @@ SDL_Surface *surface;
 SDL_Texture *texture;
 double angle = 0.0;
 SDL_RendererFlip flipType;
+
+SDL_Rect clip_grass = { 0,0, 16,16 };
+SDL_Rect clip_mur = { 0,16, 16,16 };
+SDL_Rect clip_mur_casse = { 16,16, 16,16 };
+
+
 
 #endif // GAME_H_
