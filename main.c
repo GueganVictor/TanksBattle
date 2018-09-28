@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
     tanks = SDL_CreateTextureFromSurface(renderer,surface);
 
     ajouter_tank(&joueur, &game);
+    ajouter_tank(&joueur, &game);
 
     //ajouter_tank(&joueur, &game);
 
@@ -131,8 +132,8 @@ int main(int argc, char *argv[])
             }
         }
         cpt++;
-        if (cpt == 500) {
-            //deplacer_tanks(&joueur, &game);
+        if (cpt == 100) {
+            deplacer_tanks(&joueur, &game);
 
             cpt = 0;
         }

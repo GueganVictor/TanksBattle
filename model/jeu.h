@@ -65,6 +65,8 @@ SDL_Texture *texture;
 double angle = 0.0;
 SDL_RendererFlip flipType;
 
+char dirs[4] = { 'S','N','O','E'};
+
 SDL_Rect clip_grass = { 0,0, 16,16 };
 SDL_Rect clip_mur = { 0,16, 16,16 };
 SDL_Rect clip_mur_casse = { 16,16, 16,16 };
