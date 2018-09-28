@@ -70,7 +70,12 @@ int main(int argc, char *argv[])
         .nxt = NULL
     };
 
-
+    obus_t obus = {
+        .direction = 'E',
+        .pos_lig = 42,
+        .pos_col = 49,
+        .nxt = NULL
+    };
 
 
     tank_update(&game, &joueur, 'X');
@@ -103,30 +108,34 @@ int main(int argc, char *argv[])
                         case SDLK_UP:
 
                             joueur.direction = 'N';
+                            deplacer(&joueur, &game);
                             //deplacer('N', &player, &game);
                         break;
                         case SDLK_RIGHT:
                             //flipType = SDL_FLIP_VERTICAL;
 
                             joueur.direction = 'E';
+                            deplacer(&joueur, &game);
                             //deplacer('E', &player, &game);
                         break;
                         case SDLK_DOWN:
 
                             joueur.direction = 'S';
+                            deplacer(&joueur, &game);
                             //deplacer('S', &player, &game);
                         break;
                         case SDLK_LEFT:
 
                             joueur.direction = 'O';
+                            deplacer(&joueur, &game);
                             //flipType = SDL_FLIP_VERTICAL;
                             //deplacer('O', &player, &game);
                         break;
                         case SDLK_SPACE:
-                            //shoot();
+                            ajouter_obus(&joueur, &game,&obus);
                         break;
                     };
-                    deplacer(&joueur, &game);
+
                     break;
                 default: {}
             }
@@ -134,6 +143,7 @@ int main(int argc, char *argv[])
         cpt++;
         if (cpt == 100) {
             deplacer_tanks(&joueur, &game);
+            deplacer_obus(&joueur, &game, &obus);
 
             cpt = 0;
         }

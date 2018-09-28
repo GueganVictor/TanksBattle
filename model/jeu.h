@@ -40,7 +40,8 @@ struct tank_t {
     struct tank_t * nxt;
 };
 
-typedef struct {
+typedef struct obus_t obus_t;
+struct obus_t {
     char direction;
     int pos_lig;
     int pos_col;
@@ -49,7 +50,7 @@ typedef struct {
     char etat;
 
     struct obus_t * nxt;
-} obus_t;
+};
 
 typedef struct {
     char ** tab;

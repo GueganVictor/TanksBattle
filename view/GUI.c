@@ -81,6 +81,10 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
                     SDL_SetRenderDrawColor( renderer, 255, 255, 0, 255 );
                     SDL_RenderFillRect( renderer, &rect );
                 break;
+                case 'O':
+                    SDL_SetRenderDrawColor( renderer, 0, 0, 0, 255 );
+                    SDL_RenderFillRect( renderer, &rect );
+                break;
                 case 'm':
                     SDL_SetRenderTarget(renderer, tilemap_sol);
                     SDL_RenderCopy(renderer,tilemap_sol,&clip_mur_casse,&rect);

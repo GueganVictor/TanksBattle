@@ -54,7 +54,6 @@ void ajouter_tank (tank_t * liste, game_t * game) {
     tank_t * enemi =  creer_tank();
     tank_t * ptr = liste;
     while (ptr->nxt != NULL) {
-        printf("%d - %d\n", ptr->pos_col, ptr->pos_lig);
         ptr = ptr->nxt;
     }
     ptr->nxt = enemi;
@@ -69,4 +68,40 @@ void deplacer_tanks (tank_t * liste, game_t * game) {
         deplacer(ptr, game);
         ptr = ptr->nxt;
     }
+}
+
+
+obus_t * creer_obus(tank_t * tank) {
+    obus_t * obus = (obus_t*)malloc(sizeof(obus_t));
+
+    obus->direction = tank->direction;
+    obus->pos_lig = tank->pos_lig;
+    obus->pos_col = tank->pos_col+2;
+
+    obus->nxt = NULL;
+
+}
+
+void deplacer_obus (tank_t * tank, game_t * game, obus_t * liste) {
+    //obus_t * enemi =  creer_obus();
+    obus_t * ptr = liste->nxt;
+    while (ptr!= NULL) {
+        game->tab[ptr->pos_lig][ptr->pos_col] = '.';
+        ptr->pos_col++;
+        printf("%d - %d \n",ptr->pos_lig, ptr->pos_col );
+        game->tab[ptr->pos_lig][ptr->pos_col] = 'O';
+        ptr = ptr->nxt;
+    }
+}
+
+void ajouter_obus (tank_t * joueur, game_t * game, obus_t * liste) {
+    obus_t * obus =  creer_obus(joueur);
+    obus_t * ptr = liste;
+    while (ptr->nxt != NULL) {
+        ptr = ptr->nxt;
+        game->tab[ptr->pos_lig][ptr->pos_col] = 'O';
+    }
+    ptr->nxt = obus;
+    printf("ajout obus\n");
+    //obus_update(game, ptr->nxt, 'E');
 }

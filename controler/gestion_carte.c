@@ -91,7 +91,7 @@ void deplacer(tank_t *tank, game_t *game ) {
         tank_update(game, tank, 'E');
     }
 
-    show_tab_term(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE, game->tab);
+    //show_tab_term(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE, game->tab);
 }
 
 int verif_deplacement (tank_t * tank, game_t * game) {
