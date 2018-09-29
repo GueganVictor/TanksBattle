@@ -1,6 +1,7 @@
 #include <math.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include "./model/jeu.h"
 //#include "./GUI.h"
 
@@ -113,4 +114,27 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
 
     render_tank_enemi ( renderer, game, joueur );
 
+}
+
+void render_menu(SDL_Renderer *renderer, const game_t *game) {
+    int posX = 0;
+    int posY = 0;
+    int lig = 0;
+    int col = 0;
+    /*for (lig = 0; lig < HAUTEUR_FENTRE/TAILLE; lig++) {
+        for (col = 0; col < LARGEUR_FENTRE/TAILLE; col++) {
+            SDL_Rect rect = {posX, posY, TAILLE, TAILLE};
+            SDL_SetRenderTarget(renderer, tilemap_sol);
+            SDL_RenderCopy(renderer,tilemap_sol,&clip_grass,&rect);
+            SDL_SetRenderTarget(renderer, NULL);
+            posX = posX + TAILLE;
+        }
+        posX = 0;
+        posY = posY + TAILLE;
+    }*/
+    // 1000 740
+    SDL_Rect button = { ((LARGEUR_FENTRE/2)-250), 50, 500,370 };
+    SDL_SetRenderTarget(renderer, logo);
+    SDL_RenderCopy(renderer,logo,NULL,&button);
+    SDL_SetRenderTarget(renderer, NULL);
 }

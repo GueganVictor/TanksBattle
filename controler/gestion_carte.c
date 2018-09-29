@@ -123,16 +123,6 @@ void remplissage_tab(int nbLig, int nbCol, char** tab) {
     }
 }
 
-char** remp_tab_temp (int nbLig, int nbCol) {
-    char **tab = alloc_tab(nbLig, nbCol);
-    for (int lig = 0; lig < nbLig; lig++) {
-        for (int col = 0; col < nbCol; col++) {
-            tab[lig][col] == 'z';
-        }
-    }
-    return tab;
-}
-
 
 char ** create_tab(int nbLig, int nbCol) {
     printf("Taille carte : %d x %d\n", nbLig, nbCol );

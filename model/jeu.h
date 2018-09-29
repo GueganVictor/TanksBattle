@@ -2,16 +2,21 @@
 #define GAME_H_
 
 
-// VARIABLES FENETRE
-#define LARGEUR_FENTRE 1600
-#define HAUTEUR_FENTRE 800
+// VARIABLES VITESSE
+
+#define TICKRATE 70
 
 // TAILLE CELLULE
 #define TAILLE 16
 
+#define LARGEUR_FENTRE 100*TAILLE
+#define HAUTEUR_FENTRE 50*TAILLE
+
 // ETAT JEU
-#define EN_COURS 0
-#define FIN_JEU 1
+#define EN_JEU 0
+#define EN_MENU 1
+#define EDITEUR 2
+#define FIN_JEU 3
 
 // ETAT TANK
 #define EN_VIE 0
@@ -54,12 +59,12 @@ struct obus_t {
 
 typedef struct {
     char ** tab;
-    char ** old_tab;
-    int state;
+    int etat;
 } game_t;
 
 SDL_Texture * tilemap_sol;
 SDL_Texture * tanks;
+SDL_Texture * logo;
 
 SDL_Surface *surface;
 SDL_Texture *texture;

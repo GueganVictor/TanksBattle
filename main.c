@@ -51,8 +51,7 @@ int main(int argc, char *argv[])
 
     game_t game = {
         .tab = create_tab(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),//create_tab(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),
-        .old_tab = remp_tab_temp(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),
-        .state = EN_COURS
+        .etat = EN_MENU
     };
 
     tank_t joueur = {
@@ -86,6 +85,9 @@ int main(int argc, char *argv[])
     surface = IMG_Load("res/TanksMap.png");
     tanks = SDL_CreateTextureFromSurface(renderer,surface);
 
+    surface = IMG_Load("res/logo2.png");
+    logo = SDL_CreateTextureFromSurface(renderer,surface);
+
     ajouter_tank(&joueur, &game);
     ajouter_tank(&joueur, &game);
 
@@ -96,65 +98,83 @@ int main(int argc, char *argv[])
     int cpt = 0;
 
     SDL_Event e;
-    while (game.state != FIN_JEU) {
+    while (game.etat != FIN_JEU) {
         while (SDL_PollEvent(&e)) {
-            switch (e.type) {
-                case SDL_QUIT:
-                    game.state = FIN_JEU;
-                break;
-
-                case SDL_KEYDOWN:
-                    switch (e.key.keysym.sym) {
-                        case SDLK_UP:
-
-                            joueur.direction = 'N';
-                            deplacer(&joueur, &game);
-                            //deplacer('N', &player, &game);
-                        break;
-                        case SDLK_RIGHT:
-                            //flipType = SDL_FLIP_VERTICAL;
-
-                            joueur.direction = 'E';
-                            deplacer(&joueur, &game);
-                            //deplacer('E', &player, &game);
-                        break;
-                        case SDLK_DOWN:
-
-                            joueur.direction = 'S';
-                            deplacer(&joueur, &game);
-                            //deplacer('S', &player, &game);
-                        break;
-                        case SDLK_LEFT:
-
-                            joueur.direction = 'O';
-                            deplacer(&joueur, &game);
-                            //flipType = SDL_FLIP_VERTICAL;
-                            //deplacer('O', &player, &game);
-                        break;
-                        case SDLK_SPACE:
-                            ajouter_obus(&joueur, &game,&obus);
-                        break;
-                    };
-
+            if (game.etat == EN_JEU) {
+                switch (e.type) {
+                    case SDL_QUIT:
+                        game.etat = FIN_JEU;
                     break;
-                default: {}
+
+                    case SDL_KEYDOWN:
+                        switch (e.key.keysym.sym) {
+                            case SDLK_UP:
+                                joueur.direction = 'N';
+                                deplacer(&joueur, &game);
+                            break;
+                            case SDLK_RIGHT:
+                                joueur.direction = 'E';
+                                deplacer(&joueur, &game);
+                            break;
+                            case SDLK_DOWN:
+                                joueur.direction = 'S';
+                                deplacer(&joueur, &game);
+                            break;
+                            case SDLK_LEFT:
+                                joueur.direction = 'O';
+                                deplacer(&joueur, &game);
+                            break;
+                            case SDLK_SPACE:
+                                ajouter_obus(&joueur, &game,&obus);
+                            break;
+                        };
+
+                        break;
+                    default: {}
+                }
+            }
+            if (game.etat == EN_MENU) {
+                switch (e.type) {
+                    case SDL_QUIT:
+                        game.etat = FIN_JEU;
+                    break;
+                    case SDL_KEYDOWN:
+                        switch (e.key.keysym.sym) {
+                            case SDLK_SPACE:
+                                printf("mode jeu\n");
+                                game.etat = EN_JEU;
+                                printf("%d\n", game.etat );
+                            break;
+                        }
+                }
             }
         }
-        cpt++;
-        if (cpt == 100) {
+
+
+        if ( cpt == TICKRATE && game.etat == EN_JEU) {
             deplacer_tanks(&joueur, &game);
             deplacer_obus(&joueur, &game, &obus);
-
             cpt = 0;
         }
+
 
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
-        render_game(renderer, &game, &joueur);
-        // render things
-        game.old_tab = game.tab;
+
+        switch (game.etat) {
+            case EN_JEU:
+                cpt++;
+                render_game(renderer, &game, &joueur);
+            break;
+            case EN_MENU:
+                render_menu(renderer, &game);
+            break;
+            case EDITEUR:
+                //render_editeur(renderer, &game);
+            break;
+        }
 
     }
 
