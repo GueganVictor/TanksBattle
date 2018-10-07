@@ -4,13 +4,16 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "./model/jeu.h"
 
 #include "./view/GUI.c"
 
 #include "./controler/gestion_carte.c"
-#include "./controler/gestion_liste.c"
+#include "./controler/gestion_tanks.c"
+#include "./controler/gestion_obus.c"
+
 
 //#include "./view/GUI.h"
 //#include "./view/GUI.c"
@@ -24,14 +27,17 @@ int main(int argc, char *argv[])
 
     srand(time(NULL));
 
-    SDL_Rect r = { 10, 10, 50, 50 };
-    SDL_Rect clip = { 0, 0, 180, 200 };
 
     char * directions = "NOSE";
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        fprintf(stderr, "Could not initialize sdl2: %s\n", SDL_GetError());
+        fprintf(stderr, "Erreur d'initialisation de la sdl2: %s\n", SDL_GetError());
         return EXIT_FAILURE;
+    }
+
+    if(TTF_Init() == -1) {
+        fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
+        exit(EXIT_FAILURE);
     }
 
     SDL_Window *window = SDL_CreateWindow("Tanks Battle", 100, 100, LARGEUR_FENTRE, HAUTEUR_FENTRE, SDL_WINDOW_SHOWN);
@@ -55,6 +61,7 @@ int main(int argc, char *argv[])
     };
 
     tank_t joueur = {
+        .num_tank = 0,
         .direction = 'E',
         .pos_lig = 42,
         .pos_col = 49,
@@ -70,12 +77,9 @@ int main(int argc, char *argv[])
     };
 
     obus_t obus = {
-        .direction = 'E',
-        .pos_lig = 42,
-        .pos_col = 49,
-        .nxt = NULL
+        .num_obus = -1
     };
-
+    int bOk = 1;
 
     tank_update(&game, &joueur, 'X');
 
@@ -87,6 +91,7 @@ int main(int argc, char *argv[])
 
     surface = IMG_Load("res/logo2.png");
     logo = SDL_CreateTextureFromSurface(renderer,surface);
+    police = TTF_OpenFont("res/roboto.ttf", 121);
 
     ajouter_tank(&joueur, &game);
     ajouter_tank(&joueur, &game);
@@ -105,7 +110,6 @@ int main(int argc, char *argv[])
                     case SDL_QUIT:
                         game.etat = FIN_JEU;
                     break;
-
                     case SDL_KEYDOWN:
                         switch (e.key.keysym.sym) {
                             case SDLK_UP:
@@ -141,25 +145,26 @@ int main(int argc, char *argv[])
                     case SDL_KEYDOWN:
                         switch (e.key.keysym.sym) {
                             case SDLK_SPACE:
-                                printf("mode jeu\n");
                                 game.etat = EN_JEU;
-                                printf("%d\n", game.etat );
+                                printf("Passage en mode JEU (1) %d\n", game.etat );
                             break;
                         }
                 }
             }
         }
-
-
-        if ( cpt == TICKRATE && game.etat == EN_JEU) {
+            //supprimerTank(&joueur, 1);
+            //if (cpt == 2000 && bOk == 1) {
+        if (game.etat == EN_JEU && (SDL_GetTicks() % 200 == 0)) {
+            afficherobus(&obus);
             deplacer_tanks(&joueur, &game);
+            //printf("avant depalcer obus\n" );
             deplacer_obus(&joueur, &game, &obus);
-            cpt = 0;
         }
+            //bOk = 0;
+            //ajouter_tank(&joueur, &game);
+        //}
 
-
-
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
 
@@ -177,6 +182,9 @@ int main(int argc, char *argv[])
         }
 
     }
+
+    SDL_FreeSurface( surface );
+    TTF_CloseFont( police );
 
     SDL_DestroyWindow(window);
     SDL_Quit();

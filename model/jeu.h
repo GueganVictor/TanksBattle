@@ -4,7 +4,7 @@
 
 // VARIABLES VITESSE
 
-#define TICKRATE 70
+#define TICKRATE 100
 
 // TAILLE CELLULE
 #define TAILLE 16
@@ -31,6 +31,7 @@
 
 typedef struct tank_t tank_t;
 struct tank_t {
+    int num_tank;
     char direction;
     int pos_lig;
     int pos_col;
@@ -47,6 +48,7 @@ struct tank_t {
 
 typedef struct obus_t obus_t;
 struct obus_t {
+    int num_obus;
     char direction;
     int pos_lig;
     int pos_col;
@@ -62,9 +64,13 @@ typedef struct {
     int etat;
 } game_t;
 
+int nb_tank = 0;
+int nb_obus = 0;
+
 SDL_Texture * tilemap_sol;
 SDL_Texture * tanks;
 SDL_Texture * logo;
+TTF_Font * police;
 
 SDL_Surface *surface;
 SDL_Texture *texture;

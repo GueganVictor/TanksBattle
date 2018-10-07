@@ -110,7 +110,7 @@ void remplissage_tab(int nbLig, int nbCol, char** tab) {
         printf("Fichier chargé.\n");
         for (int lig = 0; lig < nbLig; lig++) {
             for (int col = 0; col < nbCol; col++) {
-                if (((c = getc(file)) != EOF)) {
+                if ((c = getc(file)) != EOF) {
                     if ( c > 31 && c < 123 ){
                         tab[lig][col] = c;
                     } else {

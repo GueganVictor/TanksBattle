@@ -137,4 +137,15 @@ void render_menu(SDL_Renderer *renderer, const game_t *game) {
     SDL_SetRenderTarget(renderer, logo);
     SDL_RenderCopy(renderer,logo,NULL,&button);
     SDL_SetRenderTarget(renderer, NULL);
+    char * texte = "Jouer au jeu.";
+
+    SDL_Color couleur = { 0, 0, 0, 255 };
+    SDL_Surface* surfaceText = TTF_RenderText_Blended(police, texte, couleur);
+    SDL_Texture * stexture = SDL_CreateTextureFromSurface(renderer, surfaceText);
+    SDL_Rect texted = { 10, 10, 150,90 };
+    SDL_SetRenderTarget(renderer, stexture);
+    SDL_RenderCopy(renderer,stexture,NULL,&texted);
+    SDL_FreeSurface(surfaceText);
+    SDL_DestroyTexture(stexture);
+
 }

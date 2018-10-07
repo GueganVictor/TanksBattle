@@ -1,4 +1,4 @@
-#include <stdio.h>
+#   include <stdio.h>
 #include <stdlib.h>
 #include "./model/jeu.h"
 
@@ -7,7 +7,7 @@
 tank_t * creer_tank() {
 
     tank_t * tank = (tank_t*)malloc(sizeof(tank_t));
-
+    tank->num_tank = ++nb_tank;
     tank->pos_lig = 5;
     switch (rand() % 5) {
         case 1:
@@ -50,6 +50,31 @@ tank_t * creer_tank() {
 
 }
 
+tank_t* supprimerTank(tank_t* liste, int valeur) {
+    tank_t  *tmp;
+    tank_t  *previous;
+
+    if (liste == NULL) // si la listee est NULL on s'arrete tout de suite
+    return (liste);
+    previous = liste;
+    if (previous->num_tank == valeur) { // Verifie la tete de listee, cas particulier
+        liste = previous->nxt;
+        free(previous);
+        return (liste);
+    }
+    tmp = previous->nxt; // le cas n est gere on se place donc sur le cas n+1
+    while(tmp != NULL) { // On Mouline est on supprime si on trouve le tank_t
+        if (tmp->num_tank) {
+            previous->nxt = tmp->nxt;
+            free(tmp);
+            return (liste);
+        }
+        previous = tmp; // pour ce souvenir dans la prochaine iteration du precedent
+        tmp = tmp->nxt;
+    }
+    return liste;
+}
+
 void ajouter_tank (tank_t * liste, game_t * game) {
     tank_t * enemi =  creer_tank();
     tank_t * ptr = liste;
@@ -68,40 +93,4 @@ void deplacer_tanks (tank_t * liste, game_t * game) {
         deplacer(ptr, game);
         ptr = ptr->nxt;
     }
-}
-
-
-obus_t * creer_obus(tank_t * tank) {
-    obus_t * obus = (obus_t*)malloc(sizeof(obus_t));
-
-    obus->direction = tank->direction;
-    obus->pos_lig = tank->pos_lig;
-    obus->pos_col = tank->pos_col+2;
-
-    obus->nxt = NULL;
-
-}
-
-void deplacer_obus (tank_t * tank, game_t * game, obus_t * liste) {
-    //obus_t * enemi =  creer_obus();
-    obus_t * ptr = liste->nxt;
-    while (ptr!= NULL) {
-        game->tab[ptr->pos_lig][ptr->pos_col] = '.';
-        ptr->pos_col++;
-        printf("%d - %d \n",ptr->pos_lig, ptr->pos_col );
-        game->tab[ptr->pos_lig][ptr->pos_col] = 'O';
-        ptr = ptr->nxt;
-    }
-}
-
-void ajouter_obus (tank_t * joueur, game_t * game, obus_t * liste) {
-    obus_t * obus =  creer_obus(joueur);
-    obus_t * ptr = liste;
-    while (ptr->nxt != NULL) {
-        ptr = ptr->nxt;
-        game->tab[ptr->pos_lig][ptr->pos_col] = 'O';
-    }
-    ptr->nxt = obus;
-    printf("ajout obus\n");
-    //obus_update(game, ptr->nxt, 'E');
 }
