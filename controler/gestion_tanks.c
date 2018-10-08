@@ -89,8 +89,13 @@ void deplacer_tanks (tank_t * liste, game_t * game) {
     //tank_t * enemi =  creer_tank();
     tank_t * ptr = liste->nxt;
     while (ptr!= NULL) {
-        ptr->direction = dirs[rand() % 4];
-        deplacer(ptr, game);
+        if (rand() % 4 != 2) {
+            if (rand() % 4 == 1) {
+                ptr->direction = dirs[rand() % 4];
+            }
+            deplacer(ptr, game);
+        }
+
         ptr = ptr->nxt;
     }
 }

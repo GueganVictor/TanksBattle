@@ -101,88 +101,92 @@ int main(int argc, char *argv[])
 
 
     int cpt = 0;
-
+    int deplace = 0;
     SDL_Event e;
     while (game.etat != FIN_JEU) {
-        while (SDL_PollEvent(&e)) {
-            if (game.etat == EN_JEU) {
-                switch (e.type) {
-                    case SDL_QUIT:
-                        game.etat = FIN_JEU;
-                    break;
-                    case SDL_KEYDOWN:
-                        switch (e.key.keysym.sym) {
-                            case SDLK_UP:
-                                joueur.direction = 'N';
-                                deplacer(&joueur, &game);
-                            break;
-                            case SDLK_RIGHT:
-                                joueur.direction = 'E';
-                                deplacer(&joueur, &game);
-                            break;
-                            case SDLK_DOWN:
-                                joueur.direction = 'S';
-                                deplacer(&joueur, &game);
-                            break;
-                            case SDLK_LEFT:
-                                joueur.direction = 'O';
-                                deplacer(&joueur, &game);
-                            break;
-                            case SDLK_SPACE:
-                                ajouter_obus(&joueur, &game,&obus);
-                            break;
-                        };
-
+        if ((SDL_GetTicks() % 10 == 0)) {
+            while (SDL_PollEvent(&e)) {
+                if (game.etat == EN_JEU) {
+                    switch (e.type) {
+                        case SDL_QUIT:
+                            game.etat = FIN_JEU;
                         break;
-                    default: {}
-                }
-            }
-            if (game.etat == EN_MENU) {
-                switch (e.type) {
-                    case SDL_QUIT:
-                        game.etat = FIN_JEU;
-                    break;
-                    case SDL_KEYDOWN:
-                        switch (e.key.keysym.sym) {
-                            case SDLK_SPACE:
-                                game.etat = EN_JEU;
-                                printf("Passage en mode JEU (1) %d\n", game.etat );
+                        case SDL_KEYDOWN:
+                            switch (e.key.keysym.sym) {
+                                case SDLK_UP:
+                                    joueur.direction = 'N';
+                                    deplacer(&joueur, &game);
+                                break;
+                                case SDLK_RIGHT:
+                                    joueur.direction = 'E';
+                                    deplacer(&joueur, &game);
+                                break;
+                                case SDLK_DOWN:
+                                    joueur.direction = 'S';
+                                    deplacer(&joueur, &game);
+                                break;
+                                case SDLK_LEFT:
+                                    joueur.direction = 'O';
+                                    deplacer(&joueur, &game);
+                                break;
+                                case SDLK_SPACE:
+                                    ajouter_obus(&joueur, &game,&obus);
+                                break;
+                                default:
+                                    deplace = 0;
+                                break;
+                            };
+
                             break;
-                        }
+                        default: {deplace = 0;}
+                    }
+                }
+                if (game.etat == EN_MENU) {
+                    switch (e.type) {
+                        case SDL_QUIT:
+                            game.etat = FIN_JEU;
+                        break;
+                        case SDL_KEYDOWN:
+                            switch (e.key.keysym.sym) {
+                                case SDLK_SPACE:
+                                    game.etat = EN_JEU;
+                                    printf("Passage en mode JEU (1) %d\n", game.etat );
+                                break;
+                            }
+                    }
                 }
             }
-        }
-            //supprimerTank(&joueur, 1);
-            //if (cpt == 2000 && bOk == 1) {
-        if (game.etat == EN_JEU && (SDL_GetTicks() % 200 == 0)) {
-            afficherobus(&obus);
-            deplacer_tanks(&joueur, &game);
-            //printf("avant depalcer obus\n" );
-            deplacer_obus(&joueur, &game, &obus);
-        }
-            //bOk = 0;
-            //ajouter_tank(&joueur, &game);
-        //}
 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderPresent(renderer);
-        SDL_RenderClear(renderer);
 
-        switch (game.etat) {
-            case EN_JEU:
-                cpt++;
-                render_game(renderer, &game, &joueur);
-            break;
-            case EN_MENU:
-                render_menu(renderer, &game);
-            break;
-            case EDITEUR:
-                //render_editeur(renderer, &game);
-            break;
+                //supprimerTank(&joueur, 1);
+                //if (cpt == 2000 && bOk == 1) {
+            if (game.etat == EN_JEU && (SDL_GetTicks() % 150 == 0)) {
+                afficherobus(&obus);
+                deplacer_tanks(&joueur, &game);
+                //printf("avant deplacer obus\n" );
+            }
+            if (game.etat == EN_JEU && (SDL_GetTicks() % 50 == 0)) {
+                deplacer_obus(&joueur, &game, &obus);
+            }
+
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_RenderPresent(renderer);
+            SDL_RenderClear(renderer);
+
+            switch (game.etat) {
+                case EN_JEU:
+                    cpt++;
+                    render_game(renderer, &game, &joueur);
+                break;
+                case EN_MENU:
+                    render_menu(renderer, &game);
+                break;
+                case EDITEUR:
+                    //render_editeur(renderer, &game);
+                break;
+            }
         }
-
     }
-
     SDL_FreeSurface( surface );
     TTF_CloseFont( police );
 
