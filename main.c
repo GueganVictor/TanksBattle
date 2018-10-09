@@ -20,7 +20,13 @@
 //#include "./controler/carte.c"
 //#include "./model/controler.h"
 
-
+/*
+faut compiler avec -g
+et si t'as une erreur de segmentation
+tu fait :
+gdb
+gdb nomdelexec
+*/
 
 int main(int argc, char *argv[])
 {
@@ -132,6 +138,9 @@ int main(int argc, char *argv[])
                                 case SDLK_SPACE:
                                     ajouter_obus(&joueur, &game,&obus);
                                 break;
+                                case SDLK_l:
+                                    printlist(&obus);
+                                break;
                                 default:
                                     deplace = 0;
                                 break;
@@ -161,7 +170,7 @@ int main(int argc, char *argv[])
                 //supprimerTank(&joueur, 1);
                 //if (cpt == 2000 && bOk == 1) {
             if (game.etat == EN_JEU && (SDL_GetTicks() % 150 == 0)) {
-                afficherobus(&obus);
+                //afficherobus(&obus);
                 deplacer_tanks(&joueur, &game);
                 //printf("avant deplacer obus\n" );
             }

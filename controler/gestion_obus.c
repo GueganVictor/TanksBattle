@@ -36,14 +36,10 @@ void supprimerObus(obus_t* liste, int valeur) {
     if (liste == NULL) // si la listee est NULL on s'arrete tout de suite
     return;
     previous = liste;
-    if (previous->num_obus == valeur) { // Verifie la tete de listee, cas particulier
-        liste = previous->nxt;
-        free(previous);
-        return;
-    }
     tmp = previous->nxt; // le cas n est gere on se place donc sur le cas n+1
     while(tmp != NULL) { // On Mouline est on supprime si on trouve le obus_t
-        if (tmp->num_obus) {
+        if (tmp->num_obus == valeur) {
+
             previous->nxt = tmp->nxt;
             free(tmp);
             return;
@@ -61,7 +57,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste) {
 
     switch (obus->direction) {
         case 'N':
-            if (obus->pos_lig <= 1) {
+            if (obus->pos_lig < 1) {
                 del = 1;
             } else {
                 lig = obus->pos_lig-1;
@@ -75,7 +71,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste) {
 
         break;
         case 'O':
-            if (obus->pos_col <= 1) {
+            if (obus->pos_col < 1) {
                 del = 1;
             } else {
                 lig = obus->pos_lig;
@@ -88,7 +84,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste) {
             }
         break;
         case 'S':
-            if (obus->pos_lig >= HAUTEUR_FENTRE/TAILLE-2) {
+            if (obus->pos_lig >= HAUTEUR_FENTRE/TAILLE-1) {
                 del = 1;
             } else {
                 lig = obus->pos_lig+1;
@@ -101,7 +97,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste) {
             }
         break;
         case 'E':
-            if (obus->pos_col >= LARGEUR_FENTRE/TAILLE-2) {
+            if (obus->pos_col >= LARGEUR_FENTRE/TAILLE-1) {
                 del = 1;
             } else {
                 lig = obus->pos_lig;
@@ -141,6 +137,15 @@ void afficherobus(obus_t * liste) {
         }
         ptr = ptr->nxt;
     }
+}
+
+void printlist(obus_t * liste) {
+    obus_t * ptr = liste->nxt;
+    while (ptr != NULL) {
+        printf("Obus n°%d | ", ptr->num_obus);
+        ptr = ptr->nxt;
+    }
+    printf("\n");
 }
 
 
