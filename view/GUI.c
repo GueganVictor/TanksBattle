@@ -169,3 +169,28 @@ void render_menu(SDL_Renderer *renderer, const game_t *game) {
     SDL_DestroyTexture(stexture);
 
 }
+
+void render_editeur(SDL_Renderer *renderer, const game_t *game) {
+    int posX = 0;
+    int posY = 0;
+    int lig = 0;
+    int col = 0;
+
+    for (col = 0; col < LARGEUR_FENTRE/TAILLE; col++) {
+        SDL_Rect rect = { posX, posY, 1, HAUTEUR_FENTRE };
+        SDL_SetRenderTarget(renderer, tilemap_sol);
+        SDL_RenderCopy(renderer,tilemap_sol,&clip_grass,&rect);
+        SDL_SetRenderTarget(renderer, NULL);
+        posX = posX + TAILLE;
+    }
+    posX = 0;
+    for (lig = 0; lig < HAUTEUR_FENTRE/TAILLE; lig++) {
+        SDL_Rect rect = {posX, posY, LARGEUR_FENTRE, 1 };
+        SDL_SetRenderDrawColor( renderer, 150, 150, 150, 255 );
+        SDL_RenderFillRect( renderer, &rect );
+        posY = posY + TAILLE;
+    }
+    // 1000 740
+
+
+}

@@ -111,57 +111,68 @@ int main(int argc, char *argv[])
     SDL_Event e;
     while (game.etat != FIN_JEU) {
             while (SDL_PollEvent(&e)) {
-                if (game.etat == EN_JEU) {
-                    switch (e.type) {
-                        case SDL_QUIT:
-                            game.etat = FIN_JEU;
-                        break;
-                        case SDL_KEYDOWN:
-                            switch (e.key.keysym.sym) {
-                                case SDLK_UP:
-                                    joueur.direction = 'N';
-                                    deplacer(&joueur, &game);
-                                break;
-                                case SDLK_RIGHT:
-                                    joueur.direction = 'E';
-                                    deplacer(&joueur, &game);
-                                break;
-                                case SDLK_DOWN:
-                                    joueur.direction = 'S';
-                                    deplacer(&joueur, &game);
-                                break;
-                                case SDLK_LEFT:
-                                    joueur.direction = 'O';
-                                    deplacer(&joueur, &game);
-                                break;
-                                case SDLK_SPACE:
-                                    tirer_obus(&joueur, &game,&obus);
-                                break;
-                                case SDLK_l:
-                                    printlist(&obus);
-                                break;
-                                default:
-                                    deplace = 0;
-                                break;
-                            };
-
-                            break;
-                        default: {deplace = 0;}
-                    }
+                switch (e.type) {
+                    case SDL_QUIT:
+                        game.etat = FIN_JEU;
+                    break;
                 }
-                if (game.etat == EN_MENU) {
-                    switch (e.type) {
-                        case SDL_QUIT:
-                            game.etat = FIN_JEU;
-                        break;
-                        case SDL_KEYDOWN:
-                            switch (e.key.keysym.sym) {
-                                case SDLK_SPACE:
-                                    game.etat = EN_JEU;
-                                    printf("Passage en mode JEU (1) %d\n", game.etat );
+                switch (game.etat) {
+                    case EDITEUR :
+                        if (e.type == SDL_MOUSEBUTTONDOWN) {
+                            printf("%d - %d\n", e.button.x/TAILLE+1, e.button.y/TAILLE+1);
+                            // call editor to change tab at case x ; case y
+                        }
+                    break;
+                    case EN_JEU :
+                        switch (e.type) {
+                            case SDL_KEYDOWN:
+                                switch (e.key.keysym.sym) {
+                                    case SDLK_UP:
+                                        joueur.direction = 'N';
+                                        deplacer(&joueur, &game);
+                                    break;
+                                    case SDLK_RIGHT:
+                                        joueur.direction = 'E';
+                                        deplacer(&joueur, &game);
+                                    break;
+                                    case SDLK_DOWN:
+                                        joueur.direction = 'S';
+                                        deplacer(&joueur, &game);
+                                    break;
+                                    case SDLK_LEFT:
+                                        joueur.direction = 'O';
+                                        deplacer(&joueur, &game);
+                                    break;
+                                    case SDLK_SPACE:
+                                        tirer_obus(&joueur, &game,&obus);
+                                    break;
+                                    case SDLK_l:
+                                        printlist(&obus);
+                                    break;
+                                    default:
+                                        deplace = 0;
+                                    break;
+                                };
+
                                 break;
-                            }
-                    }
+                            default: {deplace = 0;}
+                        }
+                    break;
+                    case EN_MENU :
+                        switch (e.type) {
+                            case SDL_KEYDOWN:
+                                switch (e.key.keysym.sym) {
+                                    case SDLK_SPACE:
+                                        game.etat = EN_JEU;
+                                        printf("Passage en mode JEU (1) %d\n", game.etat );
+                                    break;
+                                    case SDLK_e:
+                                        game.etat = EDITEUR;
+                                        printf("Passage en mode EDITOR (2) %d\n", game.etat );
+                                    break;
+                                }
+                        }
+                    break;
                 }
             }
 
@@ -190,7 +201,7 @@ int main(int argc, char *argv[])
                     render_menu(renderer, &game);
                 break;
                 case EDITEUR:
-                    //render_editeur(renderer, &game);
+                    render_editeur(renderer, &game);
                 break;
             }
         }
