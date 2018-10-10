@@ -110,7 +110,6 @@ int main(int argc, char *argv[])
     int deplace = 0;
     SDL_Event e;
     while (game.etat != FIN_JEU) {
-        if ((SDL_GetTicks() % 10 == 0)) {
             while (SDL_PollEvent(&e)) {
                 if (game.etat == EN_JEU) {
                     switch (e.type) {
@@ -136,7 +135,7 @@ int main(int argc, char *argv[])
                                     deplacer(&joueur, &game);
                                 break;
                                 case SDLK_SPACE:
-                                    ajouter_obus(&joueur, &game,&obus);
+                                    tirer_obus(&joueur, &game,&obus);
                                 break;
                                 case SDLK_l:
                                     printlist(&obus);
@@ -166,7 +165,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-
+        if ((SDL_GetTicks() % 10 == 0)) {
                 //supprimerTank(&joueur, 1);
                 //if (cpt == 2000 && bOk == 1) {
             if (game.etat == EN_JEU && (SDL_GetTicks() % 150 == 0)) {
@@ -185,7 +184,7 @@ int main(int argc, char *argv[])
             switch (game.etat) {
                 case EN_JEU:
                     cpt++;
-                    render_game(renderer, &game, &joueur);
+                    render_game(renderer, &game, &joueur, &obus);
                 break;
                 case EN_MENU:
                     render_menu(renderer, &game);

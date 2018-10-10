@@ -79,9 +79,11 @@ SDL_RendererFlip flipType;
 
 char dirs[4] = { 'S','N','O','E'};
 
-SDL_Rect clip_grass = { 0,0, 16,16 };
+SDL_Rect clip_grass2 = { 0,0, 16,16 };
+SDL_Rect clip_grass = { 16,0, 16,16 };
 SDL_Rect clip_mur = { 0,16, 16,16 };
 SDL_Rect clip_mur_casse = { 16,16, 16,16 };
+SDL_Rect clip_mur_casse2 = { 32,16, 16,16 };
 
 
 

@@ -50,7 +50,21 @@ void render_tank_enemi(SDL_Renderer *renderer, const game_t *game,  const tank_t
     }while (ptr != NULL);
 }
 
-void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joueur) {
+void render_obus(SDL_Renderer *renderer, const game_t *game,  const obus_t *liste) {
+    obus_t * ptr = liste->nxt;
+    SDL_Rect obus[4] = { { 0, 32, 16, 16}, { 16, 32, 16, 16}, { 32, 32, 16, 16}, { 48, 32, 16, 16}};
+    while (ptr != NULL) {
+        SDL_SetRenderTarget(renderer, tilemap_sol);
+        SDL_Rect rect = {(ptr->pos_col)*TAILLE, (ptr->pos_lig)*TAILLE, TAILLE, TAILLE};
+        SDL_RenderCopy(renderer,tilemap_sol,&clip_grass,&rect);
+        SDL_RenderCopy(renderer,tilemap_sol,&obus[strchr(dirs, ptr->direction)-dirs],&rect);
+        SDL_SetRenderTarget(renderer, NULL);
+        ptr = ptr->nxt;
+    }
+}
+
+
+void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joueur, const obus_t *obus) {
 
     SDL_Rect fullTank[4] = { { 0, 0, 48, 48}, { 48, 0, 48, 48}, { 96, 0, 48, 48}, { 144, 0, 48, 48}};
 
@@ -59,7 +73,7 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
     int oldLig = 0;
     int lig = 0;
     int col = 0;
-
+    int cpt = 0;
 
 
     for (lig = 0; lig < HAUTEUR_FENTRE/TAILLE; lig++) {
@@ -70,7 +84,11 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
             switch (game->tab[lig][col]) {
                 case '.':
                     SDL_SetRenderTarget(renderer, tilemap_sol);
-                    SDL_RenderCopy(renderer,tilemap_sol,&clip_grass,&rect);
+                    if ( (col * lig) % 9 == 0 ) {
+                        SDL_RenderCopy(renderer,tilemap_sol,&clip_grass2,&rect);
+                    } else {
+                        SDL_RenderCopy(renderer,tilemap_sol,&clip_grass,&rect);
+                    }
                     SDL_SetRenderTarget(renderer, NULL);
                 break;
                 case 'M':
@@ -79,12 +97,12 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
                     SDL_SetRenderTarget(renderer, NULL);
                 break;
                 case 'P':
-                    SDL_SetRenderDrawColor( renderer, 255, 255, 0, 255 );
+                    SDL_SetRenderDrawColor( renderer, 0, 0, 0, 255 );
                     SDL_RenderFillRect( renderer, &rect );
                 break;
                 case 'O':
-                    SDL_SetRenderDrawColor( renderer, 0, 0, 0, 255 );
-                    SDL_RenderFillRect( renderer, &rect );
+
+
                 break;
                 case 'm':
                     SDL_SetRenderTarget(renderer, tilemap_sol);
@@ -107,12 +125,14 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
             }
 
             posX = posX + TAILLE;
+            cpt++;
         }
         posX = 0;
         posY = posY + TAILLE;
     }
 
     render_tank_enemi ( renderer, game, joueur );
+    render_obus ( renderer, game, obus );
 
 }
 

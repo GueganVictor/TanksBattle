@@ -53,64 +53,76 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste) {
     game->tab[obus->pos_lig][obus->pos_col] = '.';
 
     int lig, col;
-    int del = 0;
+    int del = 1;
 
     switch (obus->direction) {
         case 'N':
             if (obus->pos_lig < 1) {
-                del = 1;
+                del = 0;
             } else {
                 lig = obus->pos_lig-1;
                 col = obus->pos_col;
                 if (game->tab[lig][col] == '.' || game->tab[lig][col] == 'O') {
                     obus->pos_lig = lig;
+                } else if ( game->tab[lig][col] == 'm' ) {
+                    game->tab[lig][col] = '.';
+                    del = 0;
                 } else {
-                    del = 1;
+                    del = 0;
                 }
             }
 
         break;
         case 'O':
             if (obus->pos_col < 1) {
-                del = 1;
+                del = 0;
             } else {
                 lig = obus->pos_lig;
                 col = obus->pos_col-1;
                 if (game->tab[lig][col] == '.' || game->tab[lig][col] == 'O') {
                     obus->pos_col = col;
+                } else if ( game->tab[lig][col] == 'm' ) {
+                    game->tab[lig][col] = '.';
+                    del = 0;
                 } else {
-                    del = 1;
+                    del = 0;
                 }
             }
         break;
         case 'S':
             if (obus->pos_lig >= HAUTEUR_FENTRE/TAILLE-1) {
-                del = 1;
+                del = 0;
             } else {
                 lig = obus->pos_lig+1;
                 col = obus->pos_col;
                 if (game->tab[lig][col] == '.' || game->tab[lig][col] == 'O') {
                     obus->pos_lig = lig;
+                } else if ( game->tab[lig][col] == 'm' ) {
+                    game->tab[lig][col] = '.';
+                    del = 0;
                 } else {
-                    del = 1;
+                    del = 0;
                 }
             }
         break;
         case 'E':
             if (obus->pos_col >= LARGEUR_FENTRE/TAILLE-1) {
-                del = 1;
+                del = 0;
             } else {
                 lig = obus->pos_lig;
                 col = obus->pos_col+1;
                 if (game->tab[lig][col] == '.' || game->tab[lig][col] == 'O') {
                     obus->pos_col = col;
+                } else if ( game->tab[lig][col] == 'm' ) {
+                    game->tab[lig][col] = '.';
+                    del = 0;
                 } else {
-                    del = 1;
+                    del = 0;
                 }
             }
         break;
     }
-    if (del == 1) {
+    if (!del) {
         printf("Suppression obus n°%d\n", obus->num_obus );
         supprimerObus(liste, obus->num_obus);
     } else {
@@ -149,7 +161,6 @@ void printlist(obus_t * liste) {
 }
 
 
-
 void ajouter_obus (tank_t * tank, game_t * game, obus_t * liste) {
     obus_t * obus =  creer_obus(tank);
     obus_t * ptr = liste;
@@ -159,4 +170,65 @@ void ajouter_obus (tank_t * tank, game_t * game, obus_t * liste) {
     }
     game->tab[obus->pos_lig][obus->pos_col] = 'O';
     ptr->nxt = obus;
+}
+
+void tirer_obus(tank_t * tank, game_t * game, obus_t * liste) {
+    int del = 1;
+    switch (tank->direction) {
+        case 'N':
+            if (tank->pos_lig-2 < 1) {
+                del = 0;
+            }
+            if (game->tab[tank->pos_lig-2][tank->pos_col] != '.') {
+                if ( game->tab[tank->pos_lig-2][tank->pos_col] == 'm') {
+                    game->tab[tank->pos_lig-2][tank->pos_col] = '.';
+                    del = 0;
+                } else {
+                    del = 1;
+                }/* code */
+            }
+        break;
+        case 'O':
+            if (tank->pos_col-2 < 1)  {
+                del = 0;
+            }
+            if (game->tab[tank->pos_lig][tank->pos_col-2] != '.') {
+                if (game->tab[tank->pos_lig][tank->pos_col-2] == 'm') {
+                    game->tab[tank->pos_lig][tank->pos_col-2] = '.';
+                    del = 0;
+                } else {
+                    del = 1;
+                }/* code */
+            }
+        break;
+        case 'S':
+            if (tank->pos_lig+2 > HAUTEUR_FENTRE/TAILLE-1) {
+                del = 0;
+            }
+            if (game->tab[tank->pos_lig+2][tank->pos_col] != '.') {
+                if (game->tab[tank->pos_lig+2][tank->pos_col] == 'm') {
+                    game->tab[tank->pos_lig+2][tank->pos_col] = '.';
+                    del = 0;
+                } else {
+                    del = 1;
+                }/* code */
+            }
+        break;
+        case 'E':
+            if (tank->pos_col+2 > LARGEUR_FENTRE/TAILLE-1) {
+                del = 0;
+            }
+            if (game->tab[tank->pos_lig][tank->pos_col+2] != '.') {
+                if (game->tab[tank->pos_lig][tank->pos_col+2] == 'm') {
+                    game->tab[tank->pos_lig][tank->pos_col+2] = '.';
+                    del = 0;
+                } else {
+                    del = 1;
+                }/* code */
+            }
+        break;
+    }
+    if (del) {
+        ajouter_obus(tank, game,liste);
+    }
 }
