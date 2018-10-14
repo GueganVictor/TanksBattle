@@ -1,4 +1,4 @@
-#   include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "./model/jeu.h"
 
@@ -83,6 +83,14 @@ void ajouter_tank (tank_t * liste, game_t * game) {
     }
     ptr->nxt = enemi;
     tank_update(game, ptr->nxt, 'E');
+}
+
+void tirer_enemi ( tank_t * liste, game_t * game, obus_t * obus ) {
+    tank_t * ptr = liste;
+    while (ptr!= NULL) {
+        tirer_obus(ptr, game, obus);
+        ptr = ptr->nxt;
+    }
 }
 
 void deplacer_tanks (tank_t * liste, game_t * game) {

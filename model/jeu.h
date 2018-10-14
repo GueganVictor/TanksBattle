@@ -62,6 +62,8 @@ struct obus_t {
 typedef struct {
     char ** tab;
     int etat;
+    char ** tab_editeur;
+    char case_editeur;
 } game_t;
 
 int nb_tank = 0;

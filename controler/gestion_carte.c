@@ -131,5 +131,21 @@ char ** create_tab(int nbLig, int nbCol) {
     remplissage_tab(nbLig, nbCol, tab);
     //show_tab_term(nbLig, nbCol, tab);
     return tab;
+}
 
+
+void remplissage_tab_vide(int nbLig, int nbCol, char** tab) {
+    for (int lig = 0; lig < nbLig; lig++) {
+        for (int col = 0; col < nbCol; col++) {
+            tab[lig][col] = '.';
+        }
+    }
+}
+
+char ** create_tab_vide(int nbLig, int nbCol) {
+    //int **tab = alloc_tab(nbLig, nbCol);
+    char **tab = alloc_tab(nbLig, nbCol);
+    remplissage_tab_vide(nbLig, nbCol, tab);
+    //show_tab_term(nbLig, nbCol, tab);
+    return tab;
 }

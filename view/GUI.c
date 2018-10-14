@@ -34,7 +34,6 @@ void render_grass_tank ( SDL_Renderer * renderer, SDL_Rect rect) {
         }
         r.x = rect.x;
         r.y = r.y + TAILLE;
-
     }
 
 }
@@ -63,9 +62,7 @@ void render_obus(SDL_Renderer *renderer, const game_t *game,  const obus_t *list
     }
 }
 
-
-void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joueur, const obus_t *obus) {
-
+void render_tab(SDL_Renderer * renderer, char ** tab, const tank_t * joueur) {
     SDL_Rect fullTank[4] = { { 0, 0, 48, 48}, { 48, 0, 48, 48}, { 96, 0, 48, 48}, { 144, 0, 48, 48}};
 
     int posX = 0;
@@ -75,18 +72,19 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
     int col = 0;
     int cpt = 0;
 
-
     for (lig = 0; lig < HAUTEUR_FENTRE/TAILLE; lig++) {
         for (col = 0; col < LARGEUR_FENTRE/TAILLE; col++) {
             SDL_Rect rect = {posX, posY, TAILLE, TAILLE};
             SDL_Rect rectGrand = {posX, posY, TAILLE*3, TAILLE*3};
 
-            switch (game->tab[lig][col]) {
+            switch (tab[lig][col]) {
                 case '.':
                     SDL_SetRenderTarget(renderer, tilemap_sol);
-                    if ( (col * lig) % 9 == 0 ) {
+                    if ( lig % 5 == 0 && col % 5 == 0) {
                         SDL_RenderCopy(renderer,tilemap_sol,&clip_grass2,&rect);
-                    } else {
+                    } else if ( lig % 2 == 1 && col % 5 == 3) {
+                        SDL_RenderCopy(renderer,tilemap_sol,&clip_grass2,&rect);
+                    }else {
                         SDL_RenderCopy(renderer,tilemap_sol,&clip_grass,&rect);
                     }
                     SDL_SetRenderTarget(renderer, NULL);
@@ -114,7 +112,7 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
                     render_grass_tank(renderer, rect);
                     SDL_SetRenderTarget(renderer, tanks);
 
-                    if (game->tab[lig][col+1] == 'X') {
+                    if (tab[lig][col+1] == 'X') {
                         SDL_RenderCopy(renderer,tanks,&fullTank[strchr(dirs, joueur->direction)-dirs],&rectGrand);
                     }
 
@@ -130,6 +128,11 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
         posX = 0;
         posY = posY + TAILLE;
     }
+}
+
+void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joueur, const obus_t *obus) {
+
+    render_tab(renderer, game->tab, joueur);
 
     render_tank_enemi ( renderer, game, joueur );
     render_obus ( renderer, game, obus );
@@ -141,17 +144,7 @@ void render_menu(SDL_Renderer *renderer, const game_t *game) {
     int posY = 0;
     int lig = 0;
     int col = 0;
-    /*for (lig = 0; lig < HAUTEUR_FENTRE/TAILLE; lig++) {
-        for (col = 0; col < LARGEUR_FENTRE/TAILLE; col++) {
-            SDL_Rect rect = {posX, posY, TAILLE, TAILLE};
-            SDL_SetRenderTarget(renderer, tilemap_sol);
-            SDL_RenderCopy(renderer,tilemap_sol,&clip_grass,&rect);
-            SDL_SetRenderTarget(renderer, NULL);
-            posX = posX + TAILLE;
-        }
-        posX = 0;
-        posY = posY + TAILLE;
-    }*/
+
     // 1000 740
     SDL_Rect button = { ((LARGEUR_FENTRE/2)-250), 50, 500,370 };
     SDL_SetRenderTarget(renderer, logo);
@@ -176,21 +169,5 @@ void render_editeur(SDL_Renderer *renderer, const game_t *game) {
     int lig = 0;
     int col = 0;
 
-    for (col = 0; col < LARGEUR_FENTRE/TAILLE; col++) {
-        SDL_Rect rect = { posX, posY, 1, HAUTEUR_FENTRE };
-        SDL_SetRenderTarget(renderer, tilemap_sol);
-        SDL_RenderCopy(renderer,tilemap_sol,&clip_grass,&rect);
-        SDL_SetRenderTarget(renderer, NULL);
-        posX = posX + TAILLE;
-    }
-    posX = 0;
-    for (lig = 0; lig < HAUTEUR_FENTRE/TAILLE; lig++) {
-        SDL_Rect rect = {posX, posY, LARGEUR_FENTRE, 1 };
-        SDL_SetRenderDrawColor( renderer, 150, 150, 150, 255 );
-        SDL_RenderFillRect( renderer, &rect );
-        posY = posY + TAILLE;
-    }
-    // 1000 740
-
-
+    render_tab(renderer, game->tab_editeur, NULL);
 }

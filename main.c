@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 
 #include <SDL2/SDL.h>
@@ -11,8 +12,10 @@
 #include "./view/GUI.c"
 
 #include "./controler/gestion_carte.c"
-#include "./controler/gestion_tanks.c"
 #include "./controler/gestion_obus.c"
+#include "./controler/gestion_tanks.c"
+#include "./controler/gestion_editeur.c"
+
 
 
 //#include "./view/GUI.h"
@@ -63,7 +66,9 @@ int main(int argc, char *argv[])
 
     game_t game = {
         .tab = create_tab(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),//create_tab(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),
-        .etat = EN_MENU
+        .etat = EN_MENU,
+        .tab_editeur = create_tab_vide(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),
+        .case_editeur = 'M'
     };
 
     tank_t joueur = {
@@ -118,10 +123,18 @@ int main(int argc, char *argv[])
                 }
                 switch (game.etat) {
                     case EDITEUR :
-                        if (e.type == SDL_MOUSEBUTTONDOWN) {
-                            printf("%d - %d\n", e.button.x/TAILLE+1, e.button.y/TAILLE+1);
-                            // call editor to change tab at case x ; case y
+                        if (e.type == SDL_MOUSEMOTION) {
+                            if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+                                get_case(e.button.x/TAILLE, e.button.y/TAILLE, &game);
+                            }
                         }
+                        if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_s ) {
+                            printf("save\n");
+                            write_data(&game);
+                        }
+
+                            // call editor to change tab at case x ; case y
+
                     break;
                     case EN_JEU :
                         switch (e.type) {
@@ -176,18 +189,24 @@ int main(int argc, char *argv[])
                 }
             }
 
-        if ((SDL_GetTicks() % 10 == 0)) {
+
                 //supprimerTank(&joueur, 1);
                 //if (cpt == 2000 && bOk == 1) {
-            if (game.etat == EN_JEU && (SDL_GetTicks() % 150 == 0)) {
-                //afficherobus(&obus);
-                deplacer_tanks(&joueur, &game);
-                //printf("avant deplacer obus\n" );
-            }
-            if (game.etat == EN_JEU && (SDL_GetTicks() % 50 == 0)) {
-                deplacer_obus(&joueur, &game, &obus);
-            }
+        if (game.etat == EN_JEU && (SDL_GetTicks() % 150 == 0)) {
+            //afficherobus(&obus);
+            deplacer_tanks(&joueur, &game);
+            //printf("avant deplacer obus\n" );
+        }
+        if (game.etat == EN_JEU && (SDL_GetTicks() % 50 == 0)) {
+            deplacer_obus(&joueur, &game, &obus);
+        }
 
+        if (game.etat == EN_JEU && (SDL_GetTicks() % 4000 == 0 )) {
+            printf("tirer enemi\n");
+            tirer_enemi(&joueur, &game, &obus);
+        }
+
+        if ((SDL_GetTicks() % 10 == 0)) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderPresent(renderer);
             SDL_RenderClear(renderer);
