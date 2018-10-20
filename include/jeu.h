@@ -1,6 +1,9 @@
-#ifndef GAME_H_
-#define GAME_H_
+#ifndef JEU_H
+#define JEU_H
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 // VARIABLES VITESSE
 
@@ -28,7 +31,6 @@
 #define EXPLOSION 1
 
 
-
 typedef struct tank_t tank_t;
 struct tank_t {
     int num_tank;
@@ -45,6 +47,7 @@ struct tank_t {
 
     struct tank_t * nxt;
 };
+
 
 typedef struct obus_t obus_t;
 struct obus_t {
@@ -64,29 +67,11 @@ typedef struct {
     int etat;
     char ** tab_editeur;
     char case_editeur;
+    int nb_tank;
+    int nb_obus;
+    SDL_Texture *textures[3];
 } game_t;
 
-int nb_tank = 0;
-int nb_obus = 0;
-
-SDL_Texture * tilemap_sol;
-SDL_Texture * tanks;
-SDL_Texture * logo;
-TTF_Font * police;
-
-SDL_Surface *surface;
-SDL_Texture *texture;
-double angle = 0.0;
-SDL_RendererFlip flipType;
-
-char dirs[4] = { 'S','N','O','E'};
-
-SDL_Rect clip_grass2 = { 0,0, 16,16 };
-SDL_Rect clip_grass = { 16,0, 16,16 };
-SDL_Rect clip_mur = { 0,16, 16,16 };
-SDL_Rect clip_mur_casse = { 16,16, 16,16 };
-SDL_Rect clip_mur_casse2 = { 32,16, 16,16 };
 
 
-
-#endif // GAME_H_
+#endif //

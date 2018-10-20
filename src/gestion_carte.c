@@ -1,5 +1,10 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+#include <math.h>
+
+#include "jeu.h"
 
 char ** alloc_tab (int lig, int col) {
     char** array = malloc(lig*sizeof(char*));
@@ -12,8 +17,7 @@ char ** alloc_tab (int lig, int col) {
 void tank_update( game_t *game, tank_t *tank, char car) {
     int posLig = tank->pos_lig;
     int posCol = tank->pos_col;
-    game->tab[posLig-1][posCol-1] = 'T';
-    if (car == '.') { game->tab[posLig-1][posCol-1] = car; }
+    game->tab[posLig-1][posCol-1] = car;
     game->tab[posLig][posCol] = car;
     game->tab[posLig+1][posCol] = car;
     game->tab[posLig][posCol+1] = car;
@@ -91,7 +95,7 @@ void deplacer(tank_t *tank, game_t *game ) {
         tank_update(game, tank, 'E');
     }
 
-    //show_tab_term(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE, game->tab);
+    show_tab_term(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE, game->tab);
 }
 
 int verif_deplacement (tank_t * tank, game_t * game) {

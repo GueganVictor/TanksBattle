@@ -2,26 +2,19 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
-#include "./model/jeu.h"
+#include "jeu.h"
+#include "gestion_editeur.h"
+#include "GUI.h"
 
-#include "./view/GUI.c"
-
-#include "./controler/gestion_carte.c"
-#include "./controler/gestion_obus.c"
-#include "./controler/gestion_tanks.c"
-#include "./controler/gestion_editeur.c"
-
-
-
-//#include "./view/GUI.h"
-//#include "./view/GUI.c"
-//#include "./controler/carte.c"
-//#include "./model/controler.h"
+#include "gestion_carte.h"
+#include "gestion_listes.h"
+#include "dev_tools.h"
 
 /*
 faut compiler avec -g
@@ -73,7 +66,7 @@ int main(int argc, char *argv[])
 
     tank_t joueur = {
         .num_tank = 0,
-        .direction = 'E',
+        .direction = 'N',
         .pos_lig = 42,
         .pos_col = 49,
         .blindage = 2,
@@ -94,22 +87,24 @@ int main(int argc, char *argv[])
 
     tank_update(&game, &joueur, 'X');
 
+    SDL_Surface * surface;
+    SDL_Texture * texture;
+
     surface = IMG_Load("res/TileMap.png");
-    tilemap_sol = SDL_CreateTextureFromSurface(renderer,surface);
+    game.textures[0] = SDL_CreateTextureFromSurface(renderer,surface);
 
     surface = IMG_Load("res/TanksMap.png");
-    tanks = SDL_CreateTextureFromSurface(renderer,surface);
+    game.textures[1] = SDL_CreateTextureFromSurface(renderer,surface);
 
     surface = IMG_Load("res/logo2.png");
-    logo = SDL_CreateTextureFromSurface(renderer,surface);
-    police = TTF_OpenFont("res/roboto.ttf", 121);
+    game.textures[2] = SDL_CreateTextureFromSurface(renderer,surface);
 
-    ajouter_tank(&joueur, &game);
-    ajouter_tank(&joueur, &game);
+
+
 
     //ajouter_tank(&joueur, &game);
 
-
+    int dernier_temps = 0;
 
     int cpt = 0;
     int deplace = 0;
@@ -131,9 +126,8 @@ int main(int argc, char *argv[])
                         if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_s ) {
                             printf("save\n");
                             write_data(&game);
+                            game.etat = EN_MENU;
                         }
-
-                            // call editor to change tab at case x ; case y
 
                     break;
                     case EN_JEU :
@@ -148,6 +142,10 @@ int main(int argc, char *argv[])
                                         joueur.direction = 'E';
                                         deplacer(&joueur, &game);
                                     break;
+                                    case SDLK_a:
+                                        ajouter_tank(&joueur, &game);
+
+                                    break;
                                     case SDLK_DOWN:
                                         joueur.direction = 'S';
                                         deplacer(&joueur, &game);
@@ -157,10 +155,19 @@ int main(int argc, char *argv[])
                                         deplacer(&joueur, &game);
                                     break;
                                     case SDLK_SPACE:
-                                        tirer_obus(&joueur, &game,&obus);
+                                        if (SDL_GetTicks() > dernier_temps + 250 ) {
+                                            tirer_obus(&joueur, &game,&obus);
+                                            dernier_temps = SDL_GetTicks();
+                                        }
+                                    break;
+                                    case SDLK_o:
+                                        print_list_obus(&obus);
+                                    break;
+                                    case SDLK_p:
+                                        print_list_tank(&joueur);
                                     break;
                                     case SDLK_l:
-                                        printlist(&obus);
+                                        decrease_armor(&joueur);
                                     break;
                                     default:
                                         deplace = 0;
@@ -189,24 +196,20 @@ int main(int argc, char *argv[])
                 }
             }
 
-
-                //supprimerTank(&joueur, 1);
-                //if (cpt == 2000 && bOk == 1) {
         if (game.etat == EN_JEU && (SDL_GetTicks() % 150 == 0)) {
-            //afficherobus(&obus);
             deplacer_tanks(&joueur, &game);
-            //printf("avant deplacer obus\n" );
         }
         if (game.etat == EN_JEU && (SDL_GetTicks() % 50 == 0)) {
             deplacer_obus(&joueur, &game, &obus);
         }
 
-        if (game.etat == EN_JEU && (SDL_GetTicks() % 4000 == 0 )) {
+        /*if (game.etat == EN_JEU && (SDL_GetTicks() % 4000 == 0 )) {
             printf("tirer enemi\n");
             tirer_enemi(&joueur, &game, &obus);
-        }
+        }*/
 
         if ((SDL_GetTicks() % 10 == 0)) {
+
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderPresent(renderer);
             SDL_RenderClear(renderer);
@@ -226,7 +229,6 @@ int main(int argc, char *argv[])
         }
     }
     SDL_FreeSurface( surface );
-    TTF_CloseFont( police );
 
     SDL_DestroyWindow(window);
     SDL_Quit();
