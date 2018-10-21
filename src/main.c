@@ -24,29 +24,24 @@ gdb
 gdb nomdelexec
 */
 
-int main(int argc, char *argv[])
-{
-
+SDL_Renderer * initialisation_SDL(SDL_Window * window) {
     srand(time(NULL));
-
-
-    char * directions = "NOSE";
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "Erreur d'initialisation de la sdl2: %s\n", SDL_GetError());
-        return EXIT_FAILURE;
+        return NULL;
     }
 
     if(TTF_Init() == -1) {
         fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
-    SDL_Window *window = SDL_CreateWindow("Tanks Battle", 100, 100, LARGEUR_FENTRE, HAUTEUR_FENTRE, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Tanks Battle", 100, 100, LARGEUR_FENETRE, HAUTEUR_FENETRE, SDL_WINDOW_SHOWN);
 
     if (window == NULL) {
         fprintf(stderr, "SDL_CreateWindow Error : %s", SDL_GetError() );
-        return EXIT_FAILURE;
+        return NULL;
     }
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -54,13 +49,27 @@ int main(int argc, char *argv[])
     if (renderer == NULL) {
         SDL_DestroyWindow(window);
         fprintf(stderr, "SDL_CreateRenderer Error : %s", SDL_GetError() );
+        return NULL;
+    }
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    return renderer;
+}
+
+int main(int argc, char *argv[])
+{
+    SDL_Window * window = NULL;
+    SDL_Renderer * renderer = initialisation_SDL(window);
+
+    if (renderer == NULL) {
         return EXIT_FAILURE;
     }
 
     game_t game = {
-        .tab = create_tab(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),//create_tab(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),
+        .tab = create_tab(HAUTEUR_TAB, LARGEUR_TAB),//create_tab(HAUTEUR_TAB, LARGEUR_TAB),
         .etat = EN_MENU,
-        .tab_editeur = create_tab_vide(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE),
+        .tab_editeur = create_tab_vide(HAUTEUR_TAB, LARGEUR_TAB),
         .case_editeur = 'M'
     };
 
@@ -83,12 +92,10 @@ int main(int argc, char *argv[])
     obus_t obus = {
         .num_obus = -1
     };
-    int bOk = 1;
 
     tank_update(&game, &joueur, 'X');
 
     SDL_Surface * surface;
-    SDL_Texture * texture;
 
     surface = IMG_Load("res/TileMap.png");
     game.textures[0] = SDL_CreateTextureFromSurface(renderer,surface);
@@ -99,34 +106,22 @@ int main(int argc, char *argv[])
     surface = IMG_Load("res/logo2.png");
     game.textures[2] = SDL_CreateTextureFromSurface(renderer,surface);
 
-
-
-
-    //ajouter_tank(&joueur, &game);
-
     int dernier_temps = 0;
-
-    int cpt = 0;
-    int deplace = 0;
     SDL_Event e;
     while (game.etat != FIN_JEU) {
             while (SDL_PollEvent(&e)) {
-                switch (e.type) {
-                    case SDL_QUIT:
+                if (e.type == SDL_QUIT) {
                         game.etat = FIN_JEU;
-                    break;
                 }
                 switch (game.etat) {
                     case EDITEUR :
-                        if (e.type == SDL_MOUSEMOTION) {
+                        if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN ) {
                             if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
                                 get_case(e.button.x/TAILLE, e.button.y/TAILLE, &game);
                             }
                         }
-                        if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_s ) {
-                            printf("save\n");
-                            write_data(&game);
-                            game.etat = EN_MENU;
+                        if (e.type == SDL_KEYDOWN ) {
+                            changement_mode(&game, e.key.keysym.sym);
                         }
 
                     break;
@@ -138,13 +133,15 @@ int main(int argc, char *argv[])
                                         joueur.direction = 'N';
                                         deplacer(&joueur, &game);
                                     break;
+                                    case SDLK_g:
+                                        afficher_instruction(&game);
+                                    break;
                                     case SDLK_RIGHT:
                                         joueur.direction = 'E';
                                         deplacer(&joueur, &game);
                                     break;
                                     case SDLK_a:
                                         ajouter_tank(&joueur, &game);
-
                                     break;
                                     case SDLK_DOWN:
                                         joueur.direction = 'S';
@@ -160,6 +157,9 @@ int main(int argc, char *argv[])
                                             dernier_temps = SDL_GetTicks();
                                         }
                                     break;
+                                    case SDLK_ESCAPE:
+                                        game.etat = EN_MENU;
+                                    break;
                                     case SDLK_o:
                                         print_list_obus(&obus);
                                     break;
@@ -170,12 +170,11 @@ int main(int argc, char *argv[])
                                         decrease_armor(&joueur);
                                     break;
                                     default:
-                                        deplace = 0;
                                     break;
                                 };
 
                                 break;
-                            default: {deplace = 0;}
+                            default: {}
                         }
                     break;
                     case EN_MENU :
@@ -188,6 +187,7 @@ int main(int argc, char *argv[])
                                     break;
                                     case SDLK_e:
                                         game.etat = EDITEUR;
+                                        afficher_instruction(&game);
                                         printf("Passage en mode EDITOR (2) %d\n", game.etat );
                                     break;
                                 }
@@ -216,7 +216,6 @@ int main(int argc, char *argv[])
 
             switch (game.etat) {
                 case EN_JEU:
-                    cpt++;
                     render_game(renderer, &game, &joueur, &obus);
                 break;
                 case EN_MENU:

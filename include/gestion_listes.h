@@ -3,7 +3,9 @@
 
 obus_t * creer_obus(tank_t * tank);
 
-void obus_touche(int lig, int col, game_t * game, tank_t * liste_tank);
+void enemi_touche(int lig, int col, game_t * game, tank_t * liste_tank);
+
+void joueur_touche(game_t * game);
 
 void supprimerObus(obus_t* liste, int valeur);
 

@@ -77,7 +77,7 @@ void supprimerObus(obus_t* liste, int valeur) {
     }
 }
 
-void obus_touche(int lig, int col, game_t * game, tank_t * liste_tank) {
+void enemi_touche(int lig, int col, game_t * game, tank_t * liste_tank) {
     printf("tank touché\n");
     tank_t * ptr = liste_tank->nxt;
     while (ptr != NULL) {
@@ -86,6 +86,10 @@ void obus_touche(int lig, int col, game_t * game, tank_t * liste_tank) {
         }
         ptr = ptr->nxt;
     }
+}
+
+void joueur_touche(game_t * game) {
+    printf("joueur touché\n");
 }
 
 void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t * liste_tank) {
@@ -106,8 +110,11 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
                 } else if ( game->tab[lig][col] == 'm' ) {
                     game->tab[lig][col] = '.';
                     del = 0;
-                } else if (game->tab[lig][col] == 'X' || game->tab[lig][col] == 'E' ) {
-                    obus_touche(lig-1, col, game, liste_tank);
+                } else if (game->tab[lig][col] == 'E') {
+                    enemi_touche(lig-1, col, game, liste_tank);
+                    del = 0;
+                } else if (game->tab[lig][col] == 'X') {
+                    joueur_touche(game);
                     del = 0;
                 } else {
                     del = 0;
@@ -126,8 +133,11 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
                 } else if ( game->tab[lig][col] == 'm' ) {
                     game->tab[lig][col] = '.';
                     del = 0;
-                } else if (game->tab[lig][col] == 'X' || game->tab[lig][col] == 'E' ) {
-                    obus_touche(lig, col-1, game, liste_tank);
+                } else if (game->tab[lig][col] == 'E') {
+                    enemi_touche(lig, col-1, game, liste_tank);
+                    del = 0;
+                } else if (game->tab[lig][col] == 'X') {
+                    joueur_touche(game);
                     del = 0;
                 } else {
                     del = 0;
@@ -135,7 +145,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
             }
         break;
         case 'S':
-            if (obus->pos_lig >= HAUTEUR_FENTRE/TAILLE-1) {
+            if (obus->pos_lig >= HAUTEUR_TAB-1) {
                 del = 0;
             } else {
                 lig = obus->pos_lig+1;
@@ -145,8 +155,11 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
                 } else if ( game->tab[lig][col] == 'm' ) {
                     game->tab[lig][col] = '.';
                     del = 0;
-                } else if (game->tab[lig][col] == 'X' || game->tab[lig][col] == 'E' ) {
-                    obus_touche(lig+1, col, game, liste_tank);
+                } else if (game->tab[lig][col] == 'E') {
+                    enemi_touche(lig+1, col, game, liste_tank);
+                    del = 0;
+                } else if (game->tab[lig][col] == 'X') {
+                    joueur_touche(game);
                     del = 0;
                 } else {
                     del = 0;
@@ -154,7 +167,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
             }
         break;
         case 'E':
-            if (obus->pos_col >= LARGEUR_FENTRE/TAILLE-1) {
+            if (obus->pos_col >= LARGEUR_TAB-1) {
                 del = 0;
             } else {
                 lig = obus->pos_lig;
@@ -164,8 +177,11 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
                 } else if ( game->tab[lig][col] == 'm' ) {
                     game->tab[lig][col] = '.';
                     del = 0;
-                } else if (game->tab[lig][col] == 'X' || game->tab[lig][col] == 'E' ) {
-                    obus_touche(lig, col+1, game, liste_tank);
+                } else if (game->tab[lig][col] == 'E') {
+                    enemi_touche(lig, col+1, game, liste_tank);
+                    del = 0;
+                } else if (game->tab[lig][col] == 'X') {
+                    joueur_touche(game);
                     del = 0;
                 } else {
                     del = 0;
@@ -240,7 +256,7 @@ void tirer_obus(tank_t * tank, game_t * game, obus_t * liste) {
             }
         break;
         case 'S':
-            if (tank->pos_lig+2 > HAUTEUR_FENTRE/TAILLE-1) {
+            if (tank->pos_lig+2 > HAUTEUR_TAB-1) {
                 del = 0;
             } else if (game->tab[tank->pos_lig+2][tank->pos_col] != '.') {
                 if (game->tab[tank->pos_lig+2][tank->pos_col] == 'm') {
@@ -252,7 +268,7 @@ void tirer_obus(tank_t * tank, game_t * game, obus_t * liste) {
             }
         break;
         case 'E':
-            if (tank->pos_col+2 > LARGEUR_FENTRE/TAILLE-1) {
+            if (tank->pos_col+2 > LARGEUR_TAB-1) {
                 del = 0;
             } else if (game->tab[tank->pos_lig][tank->pos_col+2] != '.') {
                 if (game->tab[tank->pos_lig][tank->pos_col+2] == 'm') {
@@ -275,30 +291,15 @@ tank_t * creer_tank(game_t * game) {
 
     tank_t * tank = (tank_t*)malloc(sizeof(tank_t));
     tank->num_tank = ++game->nb_tank;
-    tank->pos_lig = 5;
-    switch (rand() % 5) {
-        case 1:
-            tank->direction = 'E';
-            tank->pos_col = 5;
-        break;
-        case 2:
-            tank->direction = 'O';
-            tank->pos_col = 95;
-        break;
-        case 3:
-            tank->direction = 'O';
-            tank->pos_col = 95;
-            tank->pos_lig = 40;
-        break;
-        case 4:
-            tank->direction = 'E';
-            tank->pos_col = 5;
-            tank->pos_lig = 40;
-        break;
+    tank->pos_lig = 1;
+    switch (rand() % 2) {
         case 0:
-            tank->direction = 'S';
-            tank->pos_col = 50;
-            tank->pos_lig = 25;
+            tank->direction = 'E';
+            tank->pos_col = 1;
+        break;
+        case 1:
+            tank->direction = 'O';
+            tank->pos_col = 95;
         break;
     }
 

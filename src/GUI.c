@@ -3,39 +3,23 @@
 #include <SDL2/SDL_ttf.h>
 
 #include "jeu.h"
+#include "gestion_carte.h"
 
-void render_background(SDL_Renderer *renderer, const game_t *game,  const tank_t *joueur) {
-    int posX = 0;
-    int posY = 0;
-    int lig = 0;
-    int col = 0;
-    printf("affichage fond\n");
-
-    for (lig = 0; lig < HAUTEUR_FENTRE/TAILLE; lig++) {
-        for (col = 0; col < LARGEUR_FENTRE/TAILLE; col++) {
-            SDL_Rect rect = {posX, posY, TAILLE, TAILLE};
-
-            posX = posX + TAILLE;
-        }
-        posX = 0;
-        posY = posY + TAILLE;
+void render_sol( SDL_Renderer * renderer, SDL_Rect rect, const game_t * game) {
+    SDL_Rect clip_grass[4] = { { 0, 0, 16, 16 }, { 16, 0, 16, 16 }, { 32, 0, 16, 16 }, { 48, 0, 16, 16 } };
+    SDL_SetRenderTarget(renderer, game->textures[0]);
+    int lig = rect.x/TAILLE;
+    int col = rect.y/TAILLE;
+    if ( lig % 2 == 0 && col % 2 == 0 ) {
+        SDL_RenderCopy(renderer,game->textures[0],&clip_grass[0],&rect);
+    } else if ( lig % 2 == 0 && col % 2 == 1 ) {
+        SDL_RenderCopy(renderer,game->textures[0],&clip_grass[1],&rect);
+    } else if ( lig % 2 == 1 && col % 2 == 0 ) {
+        SDL_RenderCopy(renderer,game->textures[0],&clip_grass[2],&rect);
+    } else {
+        SDL_RenderCopy(renderer,game->textures[0],&clip_grass[3],&rect);
     }
-}
-
-void render_grass_tank ( SDL_Renderer * renderer, SDL_Rect rect, game_t * game) {
-    SDL_Rect clip_grass = { 0,0, 16,16 };
-    SDL_Rect r = { rect.x, rect.y,  rect.w,  rect.h  };
-    for (size_t lig = 0; lig < 3; lig++) {
-        for (size_t col = 0; col < 3; col++) {
-            SDL_SetRenderTarget(renderer, game->textures[0]);
-            SDL_RenderCopy(renderer,game->textures[0],&clip_grass,&r);
-            SDL_SetRenderTarget(renderer, NULL);
-            r.x += TAILLE;
-        }
-        r.x = rect.x;
-        r.y = r.y + TAILLE;
-    }
-
+    SDL_SetRenderTarget(renderer, NULL);
 }
 
 void render_tank_enemi(SDL_Renderer *renderer, const game_t *game,  const tank_t *liste) {
@@ -64,13 +48,12 @@ void render_tank_enemi(SDL_Renderer *renderer, const game_t *game,  const tank_t
 
 void render_obus(SDL_Renderer *renderer, const game_t *game,  const obus_t *liste) {
     obus_t * ptr = liste->nxt;
-    SDL_Rect clip_grass = { 0,0, 16,16 };
     SDL_Rect obus[4] = { { 0, 32, 16, 16}, { 16, 32, 16, 16}, { 32, 32, 16, 16}, { 48, 32, 16, 16}};
     char dirs[4] = { 'S','N','O','E'};
     while (ptr != NULL) {
-        SDL_SetRenderTarget(renderer, game->textures[0]);
         SDL_Rect rect = {(ptr->pos_col)*TAILLE, (ptr->pos_lig)*TAILLE, TAILLE, TAILLE};
-        SDL_RenderCopy(renderer,game->textures[0],&clip_grass,&rect);
+        render_sol(renderer, rect, game);
+        SDL_SetRenderTarget(renderer, game->textures[0]);
         SDL_RenderCopy(renderer,game->textures[0],&obus[strchr(dirs, ptr->direction)-dirs],&rect);
         SDL_SetRenderTarget(renderer, NULL);
         ptr = ptr->nxt;
@@ -87,28 +70,30 @@ void  render_joueur (SDL_Renderer *renderer, const game_t *game,  const tank_t *
 
 void render_tab(SDL_Renderer * renderer, const game_t * game, const tank_t * joueur) {
 
-    SDL_Rect clip_grass = { 0,0, 16,16 };
-    SDL_Rect clip_mur = { 0,16, 16,16 };
-    SDL_Rect clip_mur_casse = { 16,16, 16,16 };
-    SDL_Rect clip_mur_casse2 = { 32,16, 16,16 };
+    char ** tab = alloc_tab(LARGEUR_TAB, HAUTEUR_TAB);
+    if (game->etat == EN_JEU) {
+        tab = game->tab;
+    } else {
+        tab = game->tab_editeur;
+    }
+
+    SDL_Rect clip_mur = { 0, 16, 16, 16 };
+    SDL_Rect clip_mur_casse[2] = { { 16, 16, 16, 16 }, { 32, 16, 16, 16 }};
+    SDL_Rect clip_poussin = { 48, 16, 16, 16 };
 
     int posX = 0;
     int posY = 0;
-    int oldLig = 0;
     int lig = 0;
     int col = 0;
     int cpt = 0;
 
-    for (lig = 0; lig < HAUTEUR_FENTRE/TAILLE; lig++) {
-        for (col = 0; col < LARGEUR_FENTRE/TAILLE; col++) {
+    for (lig = 0; lig < HAUTEUR_TAB; lig++) {
+        for (col = 0; col < LARGEUR_TAB; col++) {
             SDL_Rect rect = {posX, posY, TAILLE, TAILLE};
-            SDL_Rect rectGrand = {posX, posY, TAILLE*3, TAILLE*3};
 
-            switch (game->tab[lig][col]) {
+            switch (tab[lig][col]) {
                 case '.':
-                    SDL_SetRenderTarget(renderer, game->textures[0]);
-                    SDL_RenderCopy(renderer,game->textures[0],&clip_grass,&rect);
-                    SDL_SetRenderTarget(renderer, NULL);
+                    render_sol(renderer, rect, game);
                 break;
                 case 'M':
                     SDL_SetRenderTarget(renderer, game->textures[0]);
@@ -116,22 +101,21 @@ void render_tab(SDL_Renderer * renderer, const game_t * game, const tank_t * jou
                     SDL_SetRenderTarget(renderer, NULL);
                 break;
                 case 'P':
-                    SDL_SetRenderDrawColor( renderer, 0, 0, 0, 255 );
-                    SDL_RenderFillRect( renderer, &rect );
-                break;
-                case 'O':
-
-
+                SDL_SetRenderTarget(renderer, game->textures[0]);
+                SDL_RenderCopy(renderer,game->textures[0],&clip_poussin,&rect);
+                SDL_SetRenderTarget(renderer, NULL);
                 break;
                 case 'm':
                     SDL_SetRenderTarget(renderer, game->textures[0]);
-                    SDL_RenderCopy(renderer,game->textures[0],&clip_mur_casse,&rect);
+                    if (col % 2 == 0 && lig % 2 == 0) {
+                        SDL_RenderCopy(renderer,game->textures[0],&clip_mur_casse[0],&rect);
+                    } else {
+                        SDL_RenderCopy(renderer,game->textures[0],&clip_mur_casse[1],&rect);
+                    }
                     SDL_SetRenderTarget(renderer, NULL);
                 break;
                 case 'E': case 'X':
-                    SDL_SetRenderTarget(renderer, game->textures[0]);
-                    SDL_RenderCopy(renderer,game->textures[0],&clip_grass,&rect);
-                    SDL_SetRenderTarget(renderer, NULL);
+                    render_sol(renderer, rect, game);
                 break;
 
 
@@ -156,13 +140,8 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
 }
 
 void render_menu(SDL_Renderer *renderer, const game_t *game) {
-    int posX = 0;
-    int posY = 0;
-    int lig = 0;
-    int col = 0;
-
     // 1000 740
-    SDL_Rect button = { ((LARGEUR_FENTRE/2)-250), 50, 500,370 };
+    SDL_Rect button = { ((LARGEUR_FENETRE/2)-250), 50, 500,370 };
     SDL_SetRenderTarget(renderer, game->textures[2]);
     SDL_RenderCopy(renderer,game->textures[2],NULL,&button);
     SDL_SetRenderTarget(renderer, NULL);
@@ -182,10 +161,12 @@ void render_menu(SDL_Renderer *renderer, const game_t *game) {
 }
 
 void render_editeur(SDL_Renderer *renderer, const game_t *game) {
-    int posX = 0;
-    int posY = 0;
-    int lig = 0;
-    int col = 0;
-
     render_tab(renderer, game, NULL);
+
+    SDL_Rect rectGauche = { 0, 0, 5*TAILLE, 5*TAILLE };
+    SDL_Rect rectDroite = { LARGEUR_FENETRE-(5*TAILLE), 0, 5*TAILLE, 5*TAILLE };
+    SDL_SetRenderDrawColor( renderer, 255, 0, 0, 125 );
+    SDL_RenderFillRect( renderer, &rectGauche );
+    SDL_RenderFillRect( renderer, &rectDroite );
+
 }

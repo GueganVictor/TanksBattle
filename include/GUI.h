@@ -1,9 +1,7 @@
 #ifndef GUI_H
 #define GUI_H
 
-void render_background(SDL_Renderer *renderer, const game_t *game,  const tank_t *joueur);
-
-void render_grass_tank ( SDL_Renderer * renderer, SDL_Rect rect, game_t * game);
+void render_sol( SDL_Renderer * renderer, SDL_Rect rect, const game_t * game);
 
 void render_tank_enemi(SDL_Renderer *renderer, const game_t *game,  const tank_t *liste);
 

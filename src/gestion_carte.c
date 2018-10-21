@@ -68,7 +68,7 @@ void deplacer(tank_t *tank, game_t *game ) {
             }
         break;
         case 'S':
-            if (tank->pos_lig == HAUTEUR_FENTRE/TAILLE-2) {
+            if (tank->pos_lig == HAUTEUR_TAB-2) {
                 break;
             } else {
                 lig = tank->pos_lig+2;
@@ -79,7 +79,7 @@ void deplacer(tank_t *tank, game_t *game ) {
             }
         break;
         case 'E':
-            if (tank->pos_col == LARGEUR_FENTRE/TAILLE-2) {
+            if (tank->pos_col == LARGEUR_TAB-2) {
                 break;
             } else {
                 lig = tank->pos_lig-1;
@@ -95,13 +95,11 @@ void deplacer(tank_t *tank, game_t *game ) {
         tank_update(game, tank, 'E');
     }
 
-    show_tab_term(HAUTEUR_FENTRE/TAILLE, LARGEUR_FENTRE/TAILLE, game->tab);
+    show_tab_term(HAUTEUR_TAB, LARGEUR_TAB, game->tab);
 }
 
 int verif_deplacement (tank_t * tank, game_t * game) {
-
-
-
+    return 1;
 }
 
 void remplissage_tab(int nbLig, int nbCol, char** tab) {
@@ -130,10 +128,8 @@ void remplissage_tab(int nbLig, int nbCol, char** tab) {
 
 char ** create_tab(int nbLig, int nbCol) {
     printf("Taille carte : %d x %d\n", nbLig, nbCol );
-    //int **tab = alloc_tab(nbLig, nbCol);
     char **tab = alloc_tab(nbLig, nbCol);
     remplissage_tab(nbLig, nbCol, tab);
-    //show_tab_term(nbLig, nbCol, tab);
     return tab;
 }
 
@@ -141,15 +137,14 @@ char ** create_tab(int nbLig, int nbCol) {
 void remplissage_tab_vide(int nbLig, int nbCol, char** tab) {
     for (int lig = 0; lig < nbLig; lig++) {
         for (int col = 0; col < nbCol; col++) {
+            printf("case %d-%d\n", lig, col);
             tab[lig][col] = '.';
         }
     }
 }
 
 char ** create_tab_vide(int nbLig, int nbCol) {
-    //int **tab = alloc_tab(nbLig, nbCol);
     char **tab = alloc_tab(nbLig, nbCol);
     remplissage_tab_vide(nbLig, nbCol, tab);
-    //show_tab_term(nbLig, nbCol, tab);
     return tab;
 }

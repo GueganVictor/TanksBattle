@@ -1,18 +1,14 @@
 CC		:= gcc
-C_FLAGS := 
+C_FLAGS := -Wall -g
 
 BIN		:= bin
 SRC		:= src
 INCLUDE	:= include
 LIB		:= lib
 
-LIBRARIES	:= `sdl2-config --cflags --libs` -lSDL2_image -lSDL2_ttf 
+LIBRARIES	:= `sdl2-config --cflags --libs` -lSDL2_image -lSDL2_ttf
 
-ifeq ($(OS),Windows_NT)
-EXECUTABLE	:= main.exe
-else
 EXECUTABLE	:= main
-endif
 
 all: $(BIN)/$(EXECUTABLE)
 
@@ -24,4 +20,3 @@ run: all
 
 $(BIN)/$(EXECUTABLE): $(SRC)/*
 	$(CC) $(C_FLAGS) -I$(INCLUDE) -L$(LIB) $^ -o $@ $(LIBRARIES)
-  
