@@ -59,29 +59,3 @@ void afficher_instruction(game_t * game) {
     printf("║                                                                  ║\n");
     printf("╚══════════════════════════════════════════════════════════════════╝\n");
 }
-
-void changement_mode(game_t * game, SDL_Keycode key) {
-    switch (key) {
-        case SDLK_a :
-            game->case_editeur = 'M';
-        break;
-        case SDLK_z :
-            game->case_editeur = 'm';
-        break;
-        case SDLK_e :
-            game->case_editeur = '.';
-        break;
-        case SDLK_r :
-            game->case_editeur = 'P';
-        break;
-        case SDLK_d :
-            remplissage_tab_vide(HAUTEUR_TAB, LARGEUR_TAB, game->tab_editeur);
-        break;
-        case SDLK_s :
-            printf("save\n");
-            write_data(game);
-            game->etat = EN_MENU;
-        break;
-    }
-    afficher_instruction(game);
-}

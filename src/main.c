@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <math.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -11,10 +10,11 @@
 #include "jeu.h"
 #include "gestion_editeur.h"
 #include "GUI.h"
-
 #include "gestion_carte.h"
 #include "gestion_listes.h"
+
 #include "dev_tools.h"
+#include "gestion_clavier.h"
 
 /*
 faut compiler avec -g
@@ -70,7 +70,8 @@ int main(int argc, char *argv[])
         .tab = create_tab(HAUTEUR_TAB, LARGEUR_TAB),//create_tab(HAUTEUR_TAB, LARGEUR_TAB),
         .etat = EN_MENU,
         .tab_editeur = create_tab_vide(HAUTEUR_TAB, LARGEUR_TAB),
-        .case_editeur = 'M'
+        .case_editeur = 'M',
+        .choix_menu = 0
     };
 
     tank_t joueur = {
@@ -81,7 +82,7 @@ int main(int argc, char *argv[])
         .blindage = 2,
 
         .type = 'J',
-        .etat = 1,
+        .etat = EN_VIE,
 
         .blindage_orig = 2,
         .nb_hit = 0,
@@ -97,135 +98,78 @@ int main(int argc, char *argv[])
 
     SDL_Surface * surface;
 
-    surface = IMG_Load("res/TileMap.png");
+    surface = IMG_Load("res/out.png");
     game.textures[0] = SDL_CreateTextureFromSurface(renderer,surface);
 
     surface = IMG_Load("res/TanksMap.png");
     game.textures[1] = SDL_CreateTextureFromSurface(renderer,surface);
 
-    surface = IMG_Load("res/logo2.png");
+    surface = IMG_Load("res/menu.png");
     game.textures[2] = SDL_CreateTextureFromSurface(renderer,surface);
 
-    int dernier_temps = 0;
+    int temps_tir_joueur = 0;
+    int temps_tick = 0;
+    int temps_tir_enemi = 0;
     SDL_Event e;
+    int cpt = 0;
     while (game.etat != FIN_JEU) {
             while (SDL_PollEvent(&e)) {
-                if (e.type == SDL_QUIT) {
+                if (e.type == SDL_QUIT)
                         game.etat = FIN_JEU;
-                }
                 switch (game.etat) {
                     case EDITEUR :
-                        if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN ) {
-                            if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+                        if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN )
+                            if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
                                 get_case(e.button.x/TAILLE, e.button.y/TAILLE, &game);
-                            }
-                        }
-                        if (e.type == SDL_KEYDOWN ) {
-                            changement_mode(&game, e.key.keysym.sym);
-                        }
-
+                        if (e.type == SDL_KEYDOWN )
+                            changement_mode_editeur(&game, e.key.keysym.sym);
                     break;
                     case EN_JEU :
-                        switch (e.type) {
-                            case SDL_KEYDOWN:
-                                switch (e.key.keysym.sym) {
-                                    case SDLK_UP:
-                                        joueur.direction = 'N';
-                                        deplacer(&joueur, &game);
-                                    break;
-                                    case SDLK_g:
-                                        afficher_instruction(&game);
-                                    break;
-                                    case SDLK_RIGHT:
-                                        joueur.direction = 'E';
-                                        deplacer(&joueur, &game);
-                                    break;
-                                    case SDLK_a:
-                                        ajouter_tank(&joueur, &game);
-                                    break;
-                                    case SDLK_DOWN:
-                                        joueur.direction = 'S';
-                                        deplacer(&joueur, &game);
-                                    break;
-                                    case SDLK_LEFT:
-                                        joueur.direction = 'O';
-                                        deplacer(&joueur, &game);
-                                    break;
-                                    case SDLK_SPACE:
-                                        if (SDL_GetTicks() > dernier_temps + 250 ) {
-                                            tirer_obus(&joueur, &game,&obus);
-                                            dernier_temps = SDL_GetTicks();
-                                        }
-                                    break;
-                                    case SDLK_ESCAPE:
-                                        game.etat = EN_MENU;
-                                    break;
-                                    case SDLK_o:
-                                        print_list_obus(&obus);
-                                    break;
-                                    case SDLK_p:
-                                        print_list_tank(&joueur);
-                                    break;
-                                    case SDLK_l:
-                                        decrease_armor(&joueur);
-                                    break;
-                                    default:
-                                    break;
-                                };
-
-                                break;
-                            default: {}
-                        }
+                        if (e.type == SDL_KEYDOWN)
+                            changement_touche_jeu(&game, &joueur, &obus, e.key.keysym.sym, temps_tir_joueur);
                     break;
                     case EN_MENU :
-                        switch (e.type) {
-                            case SDL_KEYDOWN:
-                                switch (e.key.keysym.sym) {
-                                    case SDLK_SPACE:
-                                        game.etat = EN_JEU;
-                                        printf("Passage en mode JEU (1) %d\n", game.etat );
-                                    break;
-                                    case SDLK_e:
-                                        game.etat = EDITEUR;
-                                        afficher_instruction(&game);
-                                        printf("Passage en mode EDITOR (2) %d\n", game.etat );
-                                    break;
-                                }
-                        }
+                        if (e.type == SDL_KEYDOWN)
+                            changement_touche_menu(&game, e.key.keysym.sym);
                     break;
                 }
             }
 
-        if (game.etat == EN_JEU && (SDL_GetTicks() % 150 == 0)) {
-            deplacer_tanks(&joueur, &game);
+        cpt++;
+        if (SDL_GetTicks() > temps_tick + 1000 ) {
+            printf("TPS : %d\n", cpt );
+            temps_tick = SDL_GetTicks();
+            cpt = 0;
         }
-        if (game.etat == EN_JEU && (SDL_GetTicks() % 50 == 0)) {
-            deplacer_obus(&joueur, &game, &obus);
+
+        switch (game.etat) {
+            case EN_JEU:
+                render_game(renderer, &game, &joueur, &obus);
+                if (SDL_GetTicks() % 100 == 0)
+                    change_etat_tank(&joueur);
+                if (SDL_GetTicks() % 100 == 0)
+                    deplacer_tanks(&joueur, &game);
+                if (SDL_GetTicks() % 40 == 0)
+                    deplacer_obus(&joueur, &game, &obus);
+                if (SDL_GetTicks() > temps_tir_enemi + 2000 ) {
+                    tirer_enemi(&joueur, &game, &obus);
+                    temps_tir_enemi = SDL_GetTicks();
+                }
+                print_list_tank(&joueur);
+                supprimer_enemis(&joueur, &game);
+
+            break;
+            case EN_MENU:
+                render_menu(renderer, &game);
+            break;
+            case EDITEUR:
+                render_editeur(renderer, &game);
+            break;
         }
 
-        /*if (game.etat == EN_JEU && (SDL_GetTicks() % 4000 == 0 )) {
-            printf("tirer enemi\n");
-            tirer_enemi(&joueur, &game, &obus);
-        }*/
-
-        if ((SDL_GetTicks() % 10 == 0)) {
-
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            SDL_RenderPresent(renderer);
-            SDL_RenderClear(renderer);
-
-            switch (game.etat) {
-                case EN_JEU:
-                    render_game(renderer, &game, &joueur, &obus);
-                break;
-                case EN_MENU:
-                    render_menu(renderer, &game);
-                break;
-                case EDITEUR:
-                    render_editeur(renderer, &game);
-                break;
-            }
-        }
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderPresent(renderer);
+        SDL_RenderClear(renderer);
     }
     SDL_FreeSurface( surface );
 

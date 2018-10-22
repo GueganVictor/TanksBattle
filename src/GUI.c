@@ -27,21 +27,29 @@ void render_tank_enemi(SDL_Renderer *renderer, const game_t *game,  const tank_t
     SDL_Rect fullTankEnemi[4] = { { 0, 48, 48, 48}, { 48, 48, 48, 48}, { 96, 48, 48, 48}, { 144, 48, 48, 48}};
     SDL_Rect fullTankEnemi2[4] = { { 0, 96, 48, 48}, { 48, 96, 48, 48}, { 96, 96, 48, 48}, { 144, 96, 48, 48}};
     SDL_Rect fullTankEnemi3[4] = { { 0, 144, 48, 48}, { 48, 144, 48, 48}, { 96, 144, 48, 48}, { 144, 144, 48, 48}};
+    SDL_Rect fullExplosionTank[4] = { { 0, 196, 48, 48}, { 48, 196, 48, 48}, { 96, 196, 48, 48}, { 144, 196, 48, 48}};
     char dirs[4] = { 'S','N','O','E'};
     while (ptr != NULL) {
         SDL_SetRenderTarget(renderer, game->textures[1]);
         SDL_Rect rectGrand = {(ptr->pos_col-1)*TAILLE, (ptr->pos_lig-1)*TAILLE, TAILLE*3, TAILLE*3};
-        switch (ptr->blindage) {
-            case 1:
-                SDL_RenderCopy(renderer,game->textures[1],&fullTankEnemi[strchr(dirs, ptr->direction)-dirs],&rectGrand);
-            break;
-            case 2:
-                SDL_RenderCopy(renderer,game->textures[1],&fullTankEnemi2[strchr(dirs, ptr->direction)-dirs],&rectGrand);
-            break;
-            case 3:
-                SDL_RenderCopy(renderer,game->textures[1],&fullTankEnemi3[strchr(dirs, ptr->direction)-dirs],&rectGrand);
-            break;
+        if (ptr->etat < 4) {
+            switch (ptr->blindage) {
+                case 1:
+                    SDL_RenderCopy(renderer,game->textures[1],&fullTankEnemi[strchr(dirs, ptr->direction)-dirs],&rectGrand);
+                break;
+                case 2:
+                    SDL_RenderCopy(renderer,game->textures[1],&fullTankEnemi2[strchr(dirs, ptr->direction)-dirs],&rectGrand);
+                break;
+                case 3:
+                    SDL_RenderCopy(renderer,game->textures[1],&fullTankEnemi3[strchr(dirs, ptr->direction)-dirs],&rectGrand);
+                break;
+            }
         }
+
+        if (ptr->etat != EN_VIE && ptr->etat != DETRUIT) {
+            SDL_RenderCopy(renderer,game->textures[1],&fullExplosionTank[ptr->etat-1],&rectGrand);
+        }
+
         ptr = ptr->nxt;
     }
 }
@@ -101,6 +109,7 @@ void render_tab(SDL_Renderer * renderer, const game_t * game, const tank_t * jou
                     SDL_SetRenderTarget(renderer, NULL);
                 break;
                 case 'P':
+                render_sol(renderer, rect, game);
                 SDL_SetRenderTarget(renderer, game->textures[0]);
                 SDL_RenderCopy(renderer,game->textures[0],&clip_poussin,&rect);
                 SDL_SetRenderTarget(renderer, NULL);
@@ -141,22 +150,15 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
 
 void render_menu(SDL_Renderer *renderer, const game_t *game) {
     // 1000 740
-    SDL_Rect button = { ((LARGEUR_FENETRE/2)-250), 50, 500,370 };
     SDL_SetRenderTarget(renderer, game->textures[2]);
-    SDL_RenderCopy(renderer,game->textures[2],NULL,&button);
+    SDL_RenderCopy(renderer,game->textures[2],NULL,NULL);
     SDL_SetRenderTarget(renderer, NULL);
-    char * texte = "Jouer au jeu.";
 
-    SDL_Color couleur = { 0, 0, 0, 255 };
-    TTF_Font * police = TTF_OpenFont("res/roboto.ttf", 121);
-    SDL_Surface* surfaceText = TTF_RenderText_Blended(police, texte, couleur);
-    TTF_CloseFont( police );
-    SDL_Texture * stexture = SDL_CreateTextureFromSurface(renderer, surfaceText);
-    SDL_Rect texted = { 10, 10, 150,90 };
-    SDL_SetRenderTarget(renderer, stexture);
-    SDL_RenderCopy(renderer,stexture,NULL,&texted);
-    SDL_FreeSurface(surfaceText);
-    SDL_DestroyTexture(stexture);
+    SDL_Rect choix = { 48, 32, 16, 16};
+    SDL_Rect position = { 4*TAILLE, 27*TAILLE+(game->choix_menu*5*TAILLE), TAILLE*3, TAILLE*3 };
+    SDL_SetRenderTarget(renderer, game->textures[0]);
+    SDL_RenderCopy(renderer,game->textures[0],&choix,&position);
+    SDL_SetRenderTarget(renderer, NULL);
 
 }
 

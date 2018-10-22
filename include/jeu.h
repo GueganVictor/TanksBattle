@@ -9,7 +9,7 @@
 #define TICKRATE 100
 
 // TAILLE CELLULE
-#define TAILLE 16
+#define TAILLE 18
 
 // TAILLE TABLEAU
 #define LARGEUR_TAB 100
@@ -29,12 +29,13 @@
 
 // ETAT TANK
 #define EN_VIE 0
-#define EXPLOSION 1
-#define DETRUIT 2
+#define EXPLOSION_0 1
+#define EXPLOSION_1 2
+#define EXPLOSION_2 3
+#define EXPLOSION_3 4
+#define DETRUIT 5
 
-// ETAT OBUS
-#define EN_VIE 0
-#define EXPLOSION 1
+
 
 
 typedef struct tank_t tank_t;
@@ -57,11 +58,13 @@ struct tank_t {
 
 typedef struct obus_t obus_t;
 struct obus_t {
+
     int num_obus;
-    char direction;
+
     int pos_lig;
     int pos_col;
 
+    char direction;
     char provenance;
     char etat;
 
@@ -70,12 +73,19 @@ struct obus_t {
 
 typedef struct {
     char ** tab;
-    int etat;
     char ** tab_editeur;
+
+    int etat;
     char case_editeur;
+
+    int difficule;
+    int choix_menu;
+
     int nb_tank;
     int nb_obus;
+
     SDL_Texture *textures[3];
+
 } game_t;
 
 
