@@ -41,7 +41,7 @@ void changement_mode_editeur(game_t * game, SDL_Keycode key) {
     afficher_instruction(game);
 }
 
-void changement_touche_jeu(game_t * game, tank_t * joueur, obus_t * obus, SDL_Keycode key, int temps_tir_joueur) {
+void changement_touche_jeu(game_t * game, tank_t * joueur, obus_t * obus, SDL_Keycode key, int * temps_tir_joueur) {
     switch (key) {
         case SDLK_UP:
             joueur->direction = 'N';
@@ -63,9 +63,9 @@ void changement_touche_jeu(game_t * game, tank_t * joueur, obus_t * obus, SDL_Ke
             deplacer(joueur, game);
         break;
         case SDLK_SPACE:
-            if (SDL_GetTicks() > temps_tir_joueur + 250 ) {
+            if (SDL_GetTicks() > *temps_tir_joueur + 250 ) {
                 tirer_obus(joueur, game,obus);
-                temps_tir_joueur = SDL_GetTicks();
+                *temps_tir_joueur = SDL_GetTicks();
             }
         break;
         case SDLK_ESCAPE:

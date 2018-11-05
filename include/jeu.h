@@ -6,10 +6,10 @@
 #include <SDL2/SDL_ttf.h>
 
 // VARIABLES VITESSE
-#define TICKRATE 100
+#define TICKRATE 10
 
 // TAILLE CELLULE
-#define TAILLE 18
+#define TAILLE 16
 
 // TAILLE TABLEAU
 #define LARGEUR_TAB 100
@@ -41,9 +41,15 @@
 typedef struct tank_t tank_t;
 struct tank_t {
     int num_tank;
+
     char direction;
+
     int pos_lig;
     int pos_col;
+
+    int render_pos_lig;
+    int render_pos_col;
+
     int blindage;
 
     char type;
@@ -63,6 +69,9 @@ struct obus_t {
 
     int pos_lig;
     int pos_col;
+
+    int render_pos_lig;
+    int render_pos_col;
 
     char direction;
     char provenance;
@@ -85,6 +94,9 @@ typedef struct {
     int nb_obus;
 
     SDL_Texture *textures[3];
+
+    int cpt;
+    int temps_tick;
 
 } game_t;
 

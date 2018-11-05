@@ -29,7 +29,8 @@ obus_t * creer_obus(tank_t * tank, game_t * game) {
             obus->pos_col = tank->pos_col+2;
         break;
     }
-
+    obus->render_pos_lig = obus->pos_lig*TAILLE;
+    obus->render_pos_col = obus->pos_col*TAILLE;
     obus->nxt = NULL;
 
     return obus;
@@ -215,6 +216,9 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
         //printf("Suppression obus n°%d\n", obus->num_obus );
         supprimerObus(liste, obus->num_obus);
     } else {
+        obus->render_pos_lig = obus->pos_lig * TAILLE;
+        obus->render_pos_col = obus->pos_col * TAILLE;
+
         game->tab[obus->pos_lig][obus->pos_col] = 'O';
     }
 }
@@ -325,6 +329,8 @@ tank_t * creer_tank(game_t * game) {
         break;
     }
 
+    tank->render_pos_lig = (tank->pos_lig-1)*TAILLE;
+    tank->render_pos_col = (tank->pos_col-1)*TAILLE;
 
     tank->blindage = 3;
 
@@ -339,8 +345,6 @@ tank_t * creer_tank(game_t * game) {
     return tank;
 
 }
-
-
 
 void ajouter_tank (tank_t * liste, game_t * game) {
     tank_t * enemi =  creer_tank(game);
@@ -361,7 +365,6 @@ void tirer_enemi ( tank_t * liste, game_t * game, obus_t * obus ) {
 }
 
 void deplacer_tanks (tank_t * liste, game_t * game) {
-    //tank_t * enemi =  creer_tank();
     tank_t * ptr = liste->nxt;
     char dirs[4] = { 'S','N','O','E'};
     while (ptr!= NULL) {

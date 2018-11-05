@@ -17,4 +17,8 @@ void render_menu(SDL_Renderer *renderer, const game_t *game);
 
 void render_editeur(SDL_Renderer *renderer, const game_t *game);
 
+void refresh_screen(SDL_Renderer * renderer, const game_t * game, const tank_t * tank_liste, const obus_t * obus_liste);
+
+void maj_obus ( const obus_t * liste , const game_t * game);
+
 #endif

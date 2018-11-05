@@ -108,10 +108,15 @@ int main(int argc, char *argv[])
     game.textures[2] = SDL_CreateTextureFromSurface(renderer,surface);
 
     int temps_tir_joueur = 0;
-    int temps_tick = 0;
+    game.temps_tick = 0;
     int temps_tir_enemi = 0;
+    int temps_change_etat = 0;
+    int temps_deplacement = 0;
+    int temps_deplacement_obus = 0;
+    int temps_maj_obus = 0;
+    int temps_render = 0;
     SDL_Event e;
-    int cpt = 0;
+    game.cpt = 0;
     while (game.etat != FIN_JEU) {
             while (SDL_PollEvent(&e)) {
                 if (e.type == SDL_QUIT)
@@ -126,7 +131,7 @@ int main(int argc, char *argv[])
                     break;
                     case EN_JEU :
                         if (e.type == SDL_KEYDOWN)
-                            changement_touche_jeu(&game, &joueur, &obus, e.key.keysym.sym, temps_tir_joueur);
+                            changement_touche_jeu(&game, &joueur, &obus, e.key.keysym.sym, &temps_tir_joueur);
                     break;
                     case EN_MENU :
                         if (e.type == SDL_KEYDOWN)
@@ -135,44 +140,50 @@ int main(int argc, char *argv[])
                 }
             }
 
-        cpt++;
-        if (SDL_GetTicks() > temps_tick + 1000 ) {
-            printf("TPS : %d\n", cpt );
-            temps_tick = SDL_GetTicks();
-            cpt = 0;
+
+        if (SDL_GetTicks() > game.temps_tick + 1000 ) {
+            printf("TPS : %d\n", game.cpt );
+            game.temps_tick = SDL_GetTicks();
+            game.cpt = 0;
         }
 
         switch (game.etat) {
             case EN_JEU:
-                render_game(renderer, &game, &joueur, &obus);
-                if (SDL_GetTicks() % 100 == 0)
+                if (SDL_GetTicks() >= temps_change_etat + 10*TICKRATE ) {
                     change_etat_tank(&joueur);
-                if (SDL_GetTicks() % 100 == 0)
+                    temps_change_etat = SDL_GetTicks();
+                }
+                if (SDL_GetTicks() >= temps_deplacement + 50*TICKRATE ) {
                     deplacer_tanks(&joueur, &game);
-                if (SDL_GetTicks() % 40 == 0)
+                    temps_deplacement = SDL_GetTicks();
+                }
+                if (SDL_GetTicks() >= temps_deplacement_obus + 10*TICKRATE ) {
                     deplacer_obus(&joueur, &game, &obus);
-                if (SDL_GetTicks() > temps_tir_enemi + 2000 ) {
-                    tirer_enemi(&joueur, &game, &obus);
+                    temps_deplacement_obus = SDL_GetTicks();
+                }
+                if (SDL_GetTicks() >= temps_maj_obus + (10*TICKRATE)/4 ) {
+                    maj_obus(&obus, &game);
+                    temps_maj_obus = SDL_GetTicks();
+                }
+                if (SDL_GetTicks() >= temps_tir_enemi + 200*TICKRATE ) {
+                    //tirer_enemi(&joueur, &game, &obus);
                     temps_tir_enemi = SDL_GetTicks();
                 }
-                print_list_tank(&joueur);
                 supprimer_enemis(&joueur, &game);
-
             break;
             case EN_MENU:
-                render_menu(renderer, &game);
             break;
             case EDITEUR:
-                render_editeur(renderer, &game);
             break;
         }
-
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderPresent(renderer);
-        SDL_RenderClear(renderer);
+        if (SDL_GetTicks() > temps_render + 10) {
+            game.cpt++;
+            SDL_RenderClear(renderer);
+            refresh_screen(renderer, &game, &joueur, &obus);
+            temps_render = SDL_GetTicks();
+        }
     }
     SDL_FreeSurface( surface );
-
     SDL_DestroyWindow(window);
     SDL_Quit();
 

@@ -31,7 +31,7 @@ void render_tank_enemi(SDL_Renderer *renderer, const game_t *game,  const tank_t
     char dirs[4] = { 'S','N','O','E'};
     while (ptr != NULL) {
         SDL_SetRenderTarget(renderer, game->textures[1]);
-        SDL_Rect rectGrand = {ptr->render_pos_col, ptr->render_pos_lig, TAILLE*3, TAILLE*3};
+        SDL_Rect rectGrand = {(ptr->pos_col-1)*TAILLE, (ptr->pos_lig-1)*TAILLE, TAILLE*3, TAILLE*3};
         if (ptr->etat < 4) {
             switch (ptr->blindage) {
                 case 1:
@@ -59,7 +59,7 @@ void render_obus(SDL_Renderer *renderer, const game_t *game,  const obus_t *list
     SDL_Rect obus[4] = { { 0, 32, 16, 16}, { 16, 32, 16, 16}, { 32, 32, 16, 16}, { 48, 32, 16, 16}};
     char dirs[4] = { 'S','N','O','E'};
     while (ptr != NULL) {
-        SDL_Rect rect = {ptr->render_pos_col, ptr->render_pos_lig, TAILLE, TAILLE};
+        SDL_Rect rect = {(ptr->pos_col)*TAILLE, (ptr->pos_lig)*TAILLE, TAILLE, TAILLE};
         render_sol(renderer, rect, game);
         SDL_SetRenderTarget(renderer, game->textures[0]);
         SDL_RenderCopy(renderer,game->textures[0],&obus[strchr(dirs, ptr->direction)-dirs],&rect);
@@ -100,6 +100,9 @@ void render_tab(SDL_Renderer * renderer, const game_t * game, const tank_t * jou
             SDL_Rect rect = {posX, posY, TAILLE, TAILLE};
 
             switch (tab[lig][col]) {
+                case '.':
+                    render_sol(renderer, rect, game);
+                break;
                 case 'M':
                     SDL_SetRenderTarget(renderer, game->textures[0]);
                     SDL_RenderCopy(renderer,game->textures[0],&clip_mur,&rect);
@@ -120,8 +123,12 @@ void render_tab(SDL_Renderer * renderer, const game_t * game, const tank_t * jou
                     }
                     SDL_SetRenderTarget(renderer, NULL);
                 break;
-                default:
+                case 'E': case 'X':
                     render_sol(renderer, rect, game);
+                break;
+
+
+                default:
                 break;
             }
 
@@ -164,78 +171,4 @@ void render_editeur(SDL_Renderer *renderer, const game_t *game) {
     SDL_RenderFillRect( renderer, &rectGauche );
     SDL_RenderFillRect( renderer, &rectDroite );
 
-}
-
-void refresh_screen(SDL_Renderer * renderer, const game_t * game, const tank_t * tank_liste, const obus_t * obus_liste) {
-
-    switch (game->etat) {
-        case EN_JEU:
-            render_game(renderer, game, tank_liste, obus_liste);
-        break;
-        case EN_MENU:
-            render_menu(renderer, game);
-        break;
-        case EDITEUR:
-            render_editeur(renderer, game);
-        break;
-    }
-    SDL_SetRenderTarget(renderer, NULL);
-    SDL_RenderPresent(renderer);
-}
-
-
-void maj_obus (  obus_t * liste , const game_t * game) {
-    obus_t * ptr = liste->nxt;
-    int lig, col;
-    int del = 1;
-    while (ptr != NULL) {
-        switch (ptr->direction) {
-            case 'N':
-                if (ptr->pos_lig < 1) {
-                    del = 0;
-                } else {
-                    lig = ptr->pos_lig-1;
-                    col = ptr->pos_col;
-                    if (game->tab[lig][col] == '.') {
-                        ptr->render_pos_lig -= 0.25*TAILLE;
-                    }
-                }
-
-            break;
-            case 'O':
-                if (ptr->pos_col < 1) {
-                    del = 0;
-                } else {
-                    lig = ptr->pos_lig;
-                    col = ptr->pos_col-1;
-                    if (game->tab[lig][col] == '.' ) {
-                        ptr->render_pos_col -= 0.25*TAILLE;
-                    }
-                }
-            break;
-            case 'S':
-                if (ptr->pos_lig >= HAUTEUR_TAB-1) {
-                    del = 0;
-                } else {
-                    lig = ptr->pos_lig+1;
-                    col = ptr->pos_col;
-                    if (game->tab[lig][col] == '.' ) {
-                        ptr->render_pos_lig += 0.25*TAILLE;
-                    }
-                }
-            break;
-            case 'E':
-                if (ptr->pos_col >= LARGEUR_TAB-1) {
-                    del = 0;
-                } else {
-                    lig = ptr->pos_lig;
-                    col = ptr->pos_col+1;
-                    if (game->tab[lig][col] == '.' ) {
-                        ptr->render_pos_col += 0.25*TAILLE;
-                    }
-                }
-            break;
-        }
-        ptr = ptr->nxt;
-    }
 }

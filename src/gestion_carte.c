@@ -92,6 +92,9 @@ void deplacer(tank_t *tank, game_t *game ) {
     }
     tank_update(game, tank, 'X');
     if (tank->type == 'E') {
+        tank->render_pos_lig = (tank->pos_lig - 1 ) * TAILLE;
+        tank->render_pos_col = (tank->pos_col - 1 ) * TAILLE;
+
         tank_update(game, tank, 'E');
     }
 

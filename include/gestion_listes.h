@@ -31,4 +31,6 @@ void tirer_enemi ( tank_t * liste, game_t * game, obus_t * obus );
 
 void deplacer_tanks (tank_t * liste, game_t * game);
 
+void maj_tank (  tank_t * liste , const game_t * game);
+
 #endif
