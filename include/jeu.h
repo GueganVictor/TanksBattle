@@ -3,7 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 
 // VARIABLES VITESSE
 #define TICKRATE 10
@@ -94,6 +94,9 @@ typedef struct {
     int nb_obus;
 
     SDL_Texture *textures[3];
+
+    Mix_Music * music;
+    Mix_Chunk * explosion;
 
     int cpt;
     int temps_tick;

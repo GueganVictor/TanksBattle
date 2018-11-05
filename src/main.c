@@ -5,7 +5,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 
 #include "jeu.h"
 #include "gestion_editeur.h"
@@ -27,13 +27,8 @@ gdb nomdelexec
 SDL_Renderer * initialisation_SDL(SDL_Window * window) {
     srand(time(NULL));
 
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
         fprintf(stderr, "Erreur d'initialisation de la sdl2: %s\n", SDL_GetError());
-        return NULL;
-    }
-
-    if(TTF_Init() == -1) {
-        fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
         return NULL;
     }
 
@@ -54,6 +49,9 @@ SDL_Renderer * initialisation_SDL(SDL_Window * window) {
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
+    if( Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024 ) == -1 )
+		return NULL;
+
     return renderer;
 }
 
@@ -62,17 +60,22 @@ int main(int argc, char *argv[])
     SDL_Window * window = NULL;
     SDL_Renderer * renderer = initialisation_SDL(window);
 
-    if (renderer == NULL) {
-        return EXIT_FAILURE;
-    }
-
     game_t game = {
         .tab = create_tab(HAUTEUR_TAB, LARGEUR_TAB),//create_tab(HAUTEUR_TAB, LARGEUR_TAB),
         .etat = EN_MENU,
         .tab_editeur = create_tab_vide(HAUTEUR_TAB, LARGEUR_TAB),
         .case_editeur = 'M',
+        .explosion = Mix_LoadWAV("res/swoosh.wav"),
+        .music = Mix_LoadMUS("res/battlefield.mp3"),
         .choix_menu = 0
     };
+
+    if ( game.explosion == NULL || game.music == NULL) {
+        printf("Erreur dans le chargement des fichiers sons !\n");
+        return EXIT_FAILURE;
+    }
+
+    printf("Volume : %d\n", Mix_VolumeMusic(MIX_MAX_VOLUME/6) );
 
     tank_t joueur = {
         .num_tank = 0,
@@ -118,6 +121,7 @@ int main(int argc, char *argv[])
     SDL_Event e;
     game.cpt = 0;
     while (game.etat != FIN_JEU) {
+            Mix_PlayingMusic();
             while (SDL_PollEvent(&e)) {
                 if (e.type == SDL_QUIT)
                         game.etat = FIN_JEU;
@@ -134,8 +138,9 @@ int main(int argc, char *argv[])
                             changement_touche_jeu(&game, &joueur, &obus, e.key.keysym.sym, &temps_tir_joueur);
                     break;
                     case EN_MENU :
-                        if (e.type == SDL_KEYDOWN)
+                        if (e.type == SDL_KEYDOWN) {
                             changement_touche_menu(&game, e.key.keysym.sym);
+                        }
                     break;
                 }
             }
@@ -183,6 +188,9 @@ int main(int argc, char *argv[])
             temps_render = SDL_GetTicks();
         }
     }
+    Mix_FreeMusic(game.music);
+    Mix_FreeChunk(game.explosion);
+    Mix_CloseAudio();
     SDL_FreeSurface( surface );
     SDL_DestroyWindow(window);
     SDL_Quit();

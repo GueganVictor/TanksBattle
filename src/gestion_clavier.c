@@ -4,6 +4,7 @@
 #include <time.h>
 #include <math.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 
 #include "jeu.h"
 #include "gestion_carte.h"
@@ -64,12 +65,14 @@ void changement_touche_jeu(game_t * game, tank_t * joueur, obus_t * obus, SDL_Ke
         break;
         case SDLK_SPACE:
             if (SDL_GetTicks() > *temps_tir_joueur + 250 ) {
+                Mix_PlayChannel(-1, game->explosion, 0);
                 tirer_obus(joueur, game,obus);
                 *temps_tir_joueur = SDL_GetTicks();
             }
         break;
         case SDLK_ESCAPE:
             game->etat = EN_MENU;
+            Mix_HaltMusic();
         break;
         case SDLK_o:
             print_list_obus(obus);
@@ -93,11 +96,13 @@ void changement_touche_menu(game_t * game, SDL_Keycode key) {
                 case 0:
                     game->etat = EN_JEU;
                     game->difficule = 1;
+                    Mix_PlayMusic( game->music, -1);
                     printf("Passage en mode JEU : diff = facile\n");
                 break;
                 case 1:
                     game->etat = EN_JEU;
                     game->difficule = 2;
+                    Mix_PlayMusic( game->music, -1);
                     printf("Passage en mode JEU : diff = difficile\n");
                 break;
                 case 2:

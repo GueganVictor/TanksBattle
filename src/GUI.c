@@ -187,25 +187,19 @@ void refresh_screen(SDL_Renderer * renderer, const game_t * game, const tank_t *
 void maj_obus (  obus_t * liste , const game_t * game) {
     obus_t * ptr = liste->nxt;
     int lig, col;
-    int del = 1;
     while (ptr != NULL) {
         switch (ptr->direction) {
             case 'N':
-                if (ptr->pos_lig < 1) {
-                    del = 0;
-                } else {
+                if (ptr->pos_lig >= 1) {
                     lig = ptr->pos_lig-1;
                     col = ptr->pos_col;
                     if (game->tab[lig][col] == '.') {
                         ptr->render_pos_lig -= 0.25*TAILLE;
                     }
                 }
-
             break;
             case 'O':
-                if (ptr->pos_col < 1) {
-                    del = 0;
-                } else {
+                if (ptr->pos_col >= 1) {
                     lig = ptr->pos_lig;
                     col = ptr->pos_col-1;
                     if (game->tab[lig][col] == '.' ) {
@@ -214,9 +208,7 @@ void maj_obus (  obus_t * liste , const game_t * game) {
                 }
             break;
             case 'S':
-                if (ptr->pos_lig >= HAUTEUR_TAB-1) {
-                    del = 0;
-                } else {
+                if (ptr->pos_lig < HAUTEUR_TAB-1) {
                     lig = ptr->pos_lig+1;
                     col = ptr->pos_col;
                     if (game->tab[lig][col] == '.' ) {
@@ -225,9 +217,7 @@ void maj_obus (  obus_t * liste , const game_t * game) {
                 }
             break;
             case 'E':
-                if (ptr->pos_col >= LARGEUR_TAB-1) {
-                    del = 0;
-                } else {
+                if (ptr->pos_col < LARGEUR_TAB-1) {
                     lig = ptr->pos_lig;
                     col = ptr->pos_col+1;
                     if (game->tab[lig][col] == '.' ) {
