@@ -6,11 +6,13 @@
 
 #include "jeu.h"
 #include "gestion_carte.h"
+#include "dev_tools.h"
 
 obus_t * creer_obus(tank_t * tank, game_t * game) {
     obus_t * obus = (obus_t*)malloc(sizeof(obus_t));
     obus->num_obus = ++game->nb_obus;
     obus->direction = tank->direction;
+    obus->provenance = tank->type;
     switch (obus->direction) {
         case 'N':
             obus->pos_lig = tank->pos_lig-2;
@@ -37,12 +39,18 @@ obus_t * creer_obus(tank_t * tank, game_t * game) {
 
 }
 
-tank_t* supprimerTank(game_t * game, tank_t* liste, int valeur) {
+tank_t* supprimer_tank(game_t * game, tank_t* liste, int valeur) {
     tank_t  *tmp;
     tank_t  *previous;
-
     if (liste == NULL) // si la listee est NULL on s'arrete tout de suite
     return (liste);
+    if (liste->nxt == game->tail) {
+        printf("on s'occupe de tout\n");
+        tank_update(game, liste->nxt, '.');
+        free(game->tail);
+        game->tail = liste;
+        return liste;
+    }
     previous = liste;
     tmp = previous->nxt; // le cas n est gere on se place donc sur le cas n+1
     while(tmp != NULL) { // On Mouline est on supprime si on trouve le tank_t
@@ -78,12 +86,15 @@ void supprimerObus(obus_t* liste, int valeur) {
     }
 }
 
-void change_etat_tank(tank_t * liste_tank) {
+void change_etat_tank(tank_t * liste_tank, game_t * game) {
     tank_t * ptr = liste_tank->nxt;
     while (ptr != NULL) {
         if (ptr->etat != EN_VIE) {
-            printf("changement etat tnak\n");
+            printf("changement etat tank\n");
             ptr->etat++;
+        }
+        if (ptr->etat == DETRUIT) {
+            supprimer_tank(game, liste_tank, ptr->num_tank);
         }
         ptr = ptr->nxt;
     }
@@ -92,27 +103,28 @@ void change_etat_tank(tank_t * liste_tank) {
 void enemi_touche(int lig, int col, game_t * game, tank_t * liste_tank) {
     printf("tank touché\n");
     tank_t * ptr = liste_tank->nxt;
+    int i = 0;
     while (ptr != NULL) {
-        if ( (lig >= ptr->pos_lig && lig <= ptr->pos_lig+3 ) &&  (col >= ptr->pos_col && col <= ptr->pos_col+3 ) ) {
-            ptr->etat = EXPLOSION_0;
+        printf("[] (%d >= %d && %d <= %d ) &&  (%d >= %d && %d <= %d) \n", lig, ptr->pos_lig , lig, ptr->pos_lig+2 , col , ptr->pos_col , col, ptr->pos_col+2 );
+        if ( (lig >= ptr->pos_lig-1 && lig <= ptr->pos_lig+2 ) &&  (col >= ptr->pos_col-1 && col <= ptr->pos_col+2 ) ) {
+            i = 1;
+            ptr->blindage--;
+            if (ptr->blindage <= 0) {
+                ptr->etat = EXPLOSION_0;
+            }
         }
         ptr = ptr->nxt;
     }
-}
-
-void supprimer_enemis(tank_t * liste_tank, game_t * game) {
-    tank_t * ptr = liste_tank->nxt;
-    while (ptr != NULL) {
-        if (ptr->etat == DETRUIT) {
-            supprimerTank(game, liste_tank, ptr->num_tank );
-        }
-        ptr = ptr->nxt;
+    if (i == 0) {
+        printf("Tank touché mais non trouvé : \n");
+        printf("[DEBUG] xLig : %d ,  xCol : %d\n", lig, col);
+        //printf("[] (%d >= %d && %d <= %d ) &&  (%d >= %d && %d <= %d) \n", lig, ptr->pos_lig , lig, ptr->pos_lig+2 , col , ptr->pos_col , col, ptr->pos_col+2 );
     }
 }
 
 void joueur_touche(game_t * game) {
     printf("joueur touché\n");
-    game->etat = FIN_JEU;
+    //game->etat = FIN_JEU;
 }
 
 void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t * liste_tank) {
@@ -133,12 +145,14 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
                 } else if ( game->tab[lig][col] == 'm' ) {
                     game->tab[lig][col] = '.';
                     del = 0;
-                } else if (game->tab[lig][col] == 'E') {
+                } else if (game->tab[lig][col] == 'E' && obus->provenance == 'J') {
                     enemi_touche(lig-1, col, game, liste_tank);
                     del = 0;
                 } else if (game->tab[lig][col] == 'X') {
                     joueur_touche(game);
                     del = 0;
+                } else if (game->tab[lig][col] == 'B') {
+                    game->etat = GAME_OVER;
                 } else {
                     del = 0;
                 }
@@ -156,12 +170,14 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
                 } else if ( game->tab[lig][col] == 'm' ) {
                     game->tab[lig][col] = '.';
                     del = 0;
-                } else if (game->tab[lig][col] == 'E') {
+                } else if (game->tab[lig][col] == 'E' && obus->provenance == 'J') {
                     enemi_touche(lig, col-1, game, liste_tank);
                     del = 0;
                 } else if (game->tab[lig][col] == 'X') {
                     joueur_touche(game);
                     del = 0;
+                } else if (game->tab[lig][col] == 'B') {
+                    game->etat = GAME_OVER;
                 } else {
                     del = 0;
                 }
@@ -178,12 +194,14 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
                 } else if ( game->tab[lig][col] == 'm' ) {
                     game->tab[lig][col] = '.';
                     del = 0;
-                } else if (game->tab[lig][col] == 'E') {
+                } else if (game->tab[lig][col] == 'E' && obus->provenance == 'J') {
                     enemi_touche(lig+1, col, game, liste_tank);
                     del = 0;
                 } else if (game->tab[lig][col] == 'X') {
                     joueur_touche(game);
                     del = 0;
+                } else if (game->tab[lig][col] == 'B') {
+                    game->etat = GAME_OVER;
                 } else {
                     del = 0;
                 }
@@ -200,12 +218,14 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
                 } else if ( game->tab[lig][col] == 'm' ) {
                     game->tab[lig][col] = '.';
                     del = 0;
-                } else if (game->tab[lig][col] == 'E') {
+                } else if (game->tab[lig][col] == 'E' && obus->provenance == 'J') {
                     enemi_touche(lig, col+1, game, liste_tank);
                     del = 0;
                 } else if (game->tab[lig][col] == 'X') {
                     joueur_touche(game);
                     del = 0;
+                } else if (game->tab[lig][col] == 'B') {
+                    game->etat = GAME_OVER;
                 } else {
                     del = 0;
                 }
@@ -313,7 +333,7 @@ void tirer_obus(tank_t * tank, game_t * game, obus_t * liste) {
 
 // Tanks
 
-tank_t * creer_tank(game_t * game) {
+tank_t * creer_tank(game_t * game, int blindage) {
 
     tank_t * tank = (tank_t*)malloc(sizeof(tank_t));
     tank->num_tank = ++game->nb_tank;
@@ -325,14 +345,14 @@ tank_t * creer_tank(game_t * game) {
         break;
         case 1:
             tank->direction = 'O';
-            tank->pos_col = 95;
+            tank->pos_col = LARGEUR_TAB-2;
         break;
     }
 
     tank->render_pos_lig = (tank->pos_lig-1)*TAILLE;
     tank->render_pos_col = (tank->pos_col-1)*TAILLE;
 
-    tank->blindage = 3;
+    tank->blindage = blindage;
 
     tank->type = 'E';
     tank->etat = EN_VIE;
@@ -347,13 +367,32 @@ tank_t * creer_tank(game_t * game) {
 }
 
 void ajouter_tank (tank_t * liste, game_t * game) {
-    tank_t * enemi =  creer_tank(game);
-    tank_t * ptr = liste;
-    while (ptr->nxt != NULL) {
-        ptr = ptr->nxt;
+    int ok = 1;
+    int blindage = -1;
+    int random;
+    printf("- %d\n",game->tank_restant[0] );
+    printf("- %d\n",game->tank_restant[1] );
+    printf("- %d\n",game->tank_restant[2] );
+    if (game->tank_restant[0] == 0 && game->tank_restant[1] == 0 && game->tank_restant[2] == 0) {
+        printf("Plus de tanks à ajouter.\n");
+        return;
     }
-    ptr->nxt = enemi;
-    tank_update(game, ptr->nxt, 'E');
+    while (ok) {
+        random = rand() % 3;
+        printf("%d -> game[] = %d\n", random, game->tank_restant[random]);
+        if (game->tank_restant[random] > 0) {
+            blindage = random+1;
+            game->tank_restant[random]--;
+            ok = 0;
+        }
+    }
+    tank_t * enemi =  creer_tank(game, blindage);
+    if (game->tail == liste) {
+        printf("Tail = joueur\n");
+    }
+    game->tail->nxt = enemi;
+    game->tail = enemi;
+    tank_update(game, game->tail, 'E');
 }
 
 void tirer_enemi ( tank_t * liste, game_t * game, obus_t * obus ) {
@@ -366,11 +405,16 @@ void tirer_enemi ( tank_t * liste, game_t * game, obus_t * obus ) {
 
 void deplacer_tanks (tank_t * liste, game_t * game) {
     tank_t * ptr = liste->nxt;
-    char dirs[4] = { 'S','N','O','E'};
+    char dirs[4] = { 'N','E','O','S'};
     while (ptr!= NULL) {
         if (rand() % 4 != 2) {
-            if (rand() % 4 == -1) {
-                ptr->direction = dirs[rand() % 4];
+            if (rand() % 4 == 0) {
+                int random = rand() % 8;
+                if (random >= 3 ) {
+                    ptr->direction = dirs[3];
+                } else {
+                    ptr->direction = dirs[random];
+                }
             }
             if (ptr->etat == EN_VIE) {
                 deplacer(ptr, game);

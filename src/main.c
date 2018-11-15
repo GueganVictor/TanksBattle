@@ -55,33 +55,17 @@ SDL_Renderer * initialisation_SDL(SDL_Window * window) {
     return renderer;
 }
 
+
 int main(int argc, char *argv[])
 {
     SDL_Window * window = NULL;
     SDL_Renderer * renderer = initialisation_SDL(window);
 
-    game_t game = {
-        .tab = create_tab(HAUTEUR_TAB, LARGEUR_TAB),//create_tab(HAUTEUR_TAB, LARGEUR_TAB),
-        .etat = EN_MENU,
-        .tab_editeur = create_tab_vide(HAUTEUR_TAB, LARGEUR_TAB),
-        .case_editeur = 'M',
-        .explosion = Mix_LoadWAV("res/swoosh.wav"),
-        .music = Mix_LoadMUS("res/battlefield.mp3"),
-        .choix_menu = 0
-    };
-
-    if ( game.explosion == NULL || game.music == NULL) {
-        printf("Erreur dans le chargement des fichiers sons !\n");
-        return EXIT_FAILURE;
-    }
-
-    printf("Volume : %d\n", Mix_VolumeMusic(MIX_MAX_VOLUME/6) );
-
     tank_t joueur = {
         .num_tank = 0,
         .direction = 'N',
-        .pos_lig = 42,
-        .pos_col = 49,
+        .pos_lig = 15,
+        .pos_col = 1,
         .blindage = 2,
 
         .type = 'J',
@@ -93,6 +77,25 @@ int main(int argc, char *argv[])
         .nxt = NULL
     };
 
+    game_t game = {
+        .tab = create_tab(HAUTEUR_TAB, LARGEUR_TAB),//create_tab(HAUTEUR_TAB, LARGEUR_TAB),
+        .etat = EN_MENU,
+        .tab_editeur = create_tab_vide(HAUTEUR_TAB, LARGEUR_TAB),
+        .case_editeur = 'M',
+        .difficulte = NON_DEFINI,
+        .explosion = Mix_LoadWAV("res/swoosh.wav"),
+        .music = Mix_LoadMUS("res/battlefield.mp3"),
+        .choix_menu = 0,
+        .tail = &joueur
+    };
+
+    if ( game.explosion == NULL || game.music == NULL) {
+        printf("Erreur dans le chargement des fichiers sons !\n");
+        return EXIT_FAILURE;
+    }
+
+    printf("Volume : %d\n", Mix_VolumeMusic(MIX_MAX_VOLUME/6) );
+
     obus_t obus = {
         .num_obus = -1
     };
@@ -101,17 +104,28 @@ int main(int argc, char *argv[])
 
     SDL_Surface * surface;
 
-    surface = IMG_Load("res/out.png");
+    surface = IMG_Load("res/Tile_Map.png");
     game.textures[0] = SDL_CreateTextureFromSurface(renderer,surface);
 
-    surface = IMG_Load("res/TanksMap.png");
+    surface = IMG_Load("res/TankMap.png");
     game.textures[1] = SDL_CreateTextureFromSurface(renderer,surface);
 
     surface = IMG_Load("res/menu.png");
     game.textures[2] = SDL_CreateTextureFromSurface(renderer,surface);
 
+    surface = IMG_Load("res/Overlay.png");
+    game.textures[3] = SDL_CreateTextureFromSurface(renderer,surface);
+
+    surface = IMG_Load("res/TankGlow.png");
+    game.textures[4] = SDL_CreateTextureFromSurface(renderer,surface);
+
+    surface = IMG_Load("res/Neon_Sol.png");
+    game.textures[5] = SDL_CreateTextureFromSurface(renderer,surface);
+
+
     int temps_tir_joueur = 0;
     game.temps_tick = 0;
+    int temps = 0;
     int temps_tir_enemi = 0;
     int temps_change_etat = 0;
     int temps_deplacement = 0;
@@ -129,7 +143,7 @@ int main(int argc, char *argv[])
                     case EDITEUR :
                         if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN )
                             if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
-                                get_case(e.button.x/TAILLE, e.button.y/TAILLE, &game);
+                                get_case((e.button.x-(18*TAILLE))/TAILLE, (e.button.y-(2*TAILLE))/TAILLE, &game);
                         if (e.type == SDL_KEYDOWN )
                             changement_mode_editeur(&game, e.key.keysym.sym);
                     break;
@@ -155,14 +169,14 @@ int main(int argc, char *argv[])
         switch (game.etat) {
             case EN_JEU:
                 if (SDL_GetTicks() >= temps_change_etat + 10*TICKRATE ) {
-                    change_etat_tank(&joueur);
+                    change_etat_tank(&joueur, &game);
                     temps_change_etat = SDL_GetTicks();
                 }
-                if (SDL_GetTicks() >= temps_deplacement + 50*TICKRATE ) {
+                if (SDL_GetTicks() >= temps_deplacement + 10*TICKRATE ) {
                     deplacer_tanks(&joueur, &game);
                     temps_deplacement = SDL_GetTicks();
                 }
-                if (SDL_GetTicks() >= temps_deplacement_obus + 10*TICKRATE ) {
+                if (SDL_GetTicks() >= temps_deplacement_obus + 4*TICKRATE ) {
                     deplacer_obus(&joueur, &game, &obus);
                     temps_deplacement_obus = SDL_GetTicks();
                 }
@@ -170,11 +184,14 @@ int main(int argc, char *argv[])
                     maj_obus(&obus, &game);
                     temps_maj_obus = SDL_GetTicks();
                 }
-                if (SDL_GetTicks() >= temps_tir_enemi + 200*TICKRATE ) {
-                    //tirer_enemi(&joueur, &game, &obus);
+                if (SDL_GetTicks() >= temps_tir_enemi + (150)*TICKRATE ) {
+                    tirer_enemi(&joueur, &game, &obus);
                     temps_tir_enemi = SDL_GetTicks();
                 }
-                supprimer_enemis(&joueur, &game);
+                if (SDL_GetTicks() >= temps + 250*TICKRATE) {
+                    ajouter_tank(&joueur, &game);
+                    temps = SDL_GetTicks();
+                }
             break;
             case EN_MENU:
             break;

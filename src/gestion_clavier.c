@@ -10,6 +10,7 @@
 #include "gestion_carte.h"
 #include "gestion_editeur.h"
 #include "gestion_listes.h"
+#include "gestion_jeu.h"
 #include "dev_tools.h"
 
 
@@ -53,6 +54,7 @@ void changement_touche_jeu(game_t * game, tank_t * joueur, obus_t * obus, SDL_Ke
             deplacer(joueur, game);
         break;
         case SDLK_a:
+            printf("yo\n");
             ajouter_tank(joueur, game);
         break;
         case SDLK_DOWN:
@@ -62,6 +64,13 @@ void changement_touche_jeu(game_t * game, tank_t * joueur, obus_t * obus, SDL_Ke
         case SDLK_LEFT:
             joueur->direction = 'O';
             deplacer(joueur, game);
+        break;
+        case SDLK_m:
+            if (Mix_PlayingMusic() == 1) {
+                Mix_HaltMusic();
+            } else {
+                Mix_PlayMusic( game->music, -1);
+            }
         break;
         case SDLK_SPACE:
             if (SDL_GetTicks() > *temps_tir_joueur + 250 ) {
@@ -95,13 +104,14 @@ void changement_touche_menu(game_t * game, SDL_Keycode key) {
             switch (game->choix_menu) {
                 case 0:
                     game->etat = EN_JEU;
-                    game->difficule = 1;
+                    application_difficulte(game, FACILE);
                     Mix_PlayMusic( game->music, -1);
                     printf("Passage en mode JEU : diff = facile\n");
                 break;
                 case 1:
                     game->etat = EN_JEU;
-                    game->difficule = 2;
+                    application_difficulte(game, DIFFICILE);
+                    game->difficulte = DIFFICILE;
                     Mix_PlayMusic( game->music, -1);
                     printf("Passage en mode JEU : diff = difficile\n");
                 break;

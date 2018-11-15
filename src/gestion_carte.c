@@ -97,7 +97,6 @@ void deplacer(tank_t *tank, game_t *game ) {
 
         tank_update(game, tank, 'E');
     }
-
     //show_tab_term(HAUTEUR_TAB, LARGEUR_TAB, game->tab);
 }
 
@@ -106,7 +105,7 @@ int verif_deplacement (tank_t * tank, game_t * game) {
 }
 
 void remplissage_tab(int nbLig, int nbCol, char** tab) {
-    char * fichier = "res/editeur_map.data";
+    char * fichier = "res/map.data";
     char c;
     FILE *file;
     file = fopen(fichier, "r");
