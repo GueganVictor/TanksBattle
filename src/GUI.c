@@ -63,21 +63,39 @@ void  render_joueur (SDL_Renderer *renderer, const game_t *game,  const tank_t *
     SDL_RenderCopy(renderer,game->textures[1],&fullTank[strchr(dirs, joueur->direction)-dirs],&rectGrand);
 }
 
+void render_tank_restant (SDL_Renderer *renderer, const game_t *game) {
+    int somme_tank= 0;
+    for (int i = 0; i < 3; i++) {
+        somme_tank += game->tank_restant[i];
+    }
+
+    SDL_Rect rect = { 32, 32, 32, 32 };
+
+    int x = 0;
+    int y = 0;
+    for (size_t i = 0; i < somme_tank; i++) {
+        SDL_Rect pos = { 2*TAILLE+(x*TAILLE*2), 38*TAILLE+(y*TAILLE*2), 2*TAILLE, 2*TAILLE};
+        SDL_RenderCopy(renderer,game->textures[7],&rect,&pos);
+        if (x++ > 5) { y++; x = 0; }
+    }
+}
+
 void render_tab(SDL_Renderer * renderer, const game_t * game, const tank_t * joueur) {
 
     char ** tab = alloc_tab(LARGEUR_TAB, HAUTEUR_TAB);
+
+    SDL_Rect rect = {TAILLE*18, TAILLE*2, TAILLE*LARGEUR_TAB, TAILLE*HAUTEUR_TAB};
+    SDL_RenderCopy(renderer,game->textures[5],NULL,&rect);
+
     if (game->etat == EN_JEU) {
         tab = game->tab;
+        render_joueur( renderer, game, joueur );
     } else {
         tab = game->tab_editeur;
     }
 
-    SDL_Rect rect = {TAILLE*18, TAILLE*2, TAILLE*LARGEUR_TAB, TAILLE*HAUTEUR_TAB};
-    SDL_RenderCopy(renderer,game->textures[5],NULL,&rect);
-    render_joueur( renderer, game, joueur );
-
-    SDL_Rect clip_mur = { 0, 16, 16, 16 };
-    SDL_Rect clip_mur_casse[2] = { { 16, 16, 16, 16 }, { 32, 16, 16, 16 }};
+    SDL_Rect clip_mur[2] = { { 0, 0, 16, 16 }, { 16, 0, 16, 16 } };
+    SDL_Rect clip_mur_casse[2] = { { 32, 0, 16, 16 }, { 48, 0, 16, 16 }};
     SDL_Rect clip_poussin = { 48, 16, 16, 16 };
 
     int posX = TAILLE*18;
@@ -93,18 +111,21 @@ void render_tab(SDL_Renderer * renderer, const game_t * game, const tank_t * jou
             switch (tab[lig][col]) {
                 case 'M':
                     SDL_SetRenderTarget(renderer, game->textures[0]);
-                    SDL_RenderCopy(renderer,game->textures[0],&clip_mur,&rect);
+                    if (col % 2 == 0) {
+                        SDL_RenderCopy(renderer,game->textures[0],&clip_mur[0],&rect);
+                    } else {
+                        SDL_RenderCopy(renderer,game->textures[0],&clip_mur[1],&rect);
+                    }
                     SDL_SetRenderTarget(renderer, NULL);
                 break;
                 case 'P':
-
-                SDL_SetRenderTarget(renderer, game->textures[0]);
-                SDL_RenderCopy(renderer,game->textures[0],&clip_poussin,&rect);
-                SDL_SetRenderTarget(renderer, NULL);
+                    SDL_SetRenderTarget(renderer, game->textures[0]);
+                    SDL_RenderCopy(renderer,game->textures[0],&clip_poussin,&rect);
+                    SDL_SetRenderTarget(renderer, NULL);
                 break;
                 case 'm':
                     SDL_SetRenderTarget(renderer, game->textures[0]);
-                    if (col % 2 == 0 && lig % 2 == 0) {
+                    if (col % 2 == 0) {
                         SDL_RenderCopy(renderer,game->textures[0],&clip_mur_casse[0],&rect);
                     } else {
                         SDL_RenderCopy(renderer,game->textures[0],&clip_mur_casse[1],&rect);
@@ -128,16 +149,22 @@ void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joue
     render_tab(renderer, game, joueur);
     render_tank_enemi ( renderer, game, joueur );
     render_obus ( renderer, game, obus );
+
 }
 
 void render_menu(SDL_Renderer *renderer, const game_t *game) {
     SDL_SetRenderTarget(renderer, game->textures[2]);
     SDL_RenderCopy(renderer,game->textures[2],NULL,NULL);
     SDL_SetRenderTarget(renderer, NULL);
-    SDL_Rect choix = { 48, 32, 16, 16};
-    SDL_Rect position = { 4*TAILLE, 27*TAILLE+(game->choix_menu*5*TAILLE), TAILLE*3, TAILLE*3 };
-    SDL_SetRenderTarget(renderer, game->textures[0]);
-    SDL_RenderCopy(renderer,game->textures[0],&choix,&position);
+    SDL_Rect position;
+    if (game->choix_menu < 3) {
+         position.x = 7*TAILLE+(game->choix_menu*32*TAILLE); position.y = 20*TAILLE-TAILLE; position.w = TAILLE*22; position.h = TAILLE*10;
+    } else {
+        position.x = 23*TAILLE+((game->choix_menu-3)*32*TAILLE); position.y = 36*TAILLE-TAILLE; position.w = TAILLE*22; position.h = TAILLE*10;
+    }
+    //SDL_Rect position = { 4*TAILLE, 27*TAILLE+(game->choix_menu*5*TAILLE), TAILLE*3, TAILLE*3 };
+    SDL_SetRenderTarget(renderer, game->textures[6]);
+    SDL_RenderCopy(renderer,game->textures[6],NULL,&position);
     SDL_SetRenderTarget(renderer, NULL);
 }
 
@@ -146,7 +173,6 @@ void render_editeur(SDL_Renderer *renderer, const game_t *game) {
 
     SDL_Rect rectGauche = { 18*TAILLE, TAILLE*2, 5*TAILLE, 5*TAILLE };
     SDL_Rect rectDroite = { LARGEUR_FENETRE-TAILLE*2-(5*TAILLE), TAILLE*2, 5*TAILLE, 5*TAILLE };
-    SDL_SetRenderDrawColor( renderer, 255, 0, 0, 125 );
     SDL_RenderFillRect( renderer, &rectGauche );
     SDL_RenderFillRect( renderer, &rectDroite );
 
@@ -181,6 +207,7 @@ void refresh_screen(SDL_Renderer * renderer, const game_t * game, const tank_t *
         SDL_SetRenderTarget(renderer, game->textures[3]);
         SDL_RenderCopy(renderer,game->textures[3],NULL,NULL);
         SDL_SetRenderTarget(renderer, NULL);
+        render_tank_restant(renderer, game);
     }
 
     SDL_SetRenderTarget(renderer, NULL);

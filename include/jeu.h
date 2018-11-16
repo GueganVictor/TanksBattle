@@ -41,6 +41,7 @@
 
 #define FACILE 1
 #define DIFFICILE 2
+#define INFERNO 3
 #define NON_DEFINI -1
 
 typedef struct tank_t tank_t;

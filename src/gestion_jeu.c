@@ -23,9 +23,9 @@ void application_difficulte(game_t * game, int difficulte) {
         case FACILE:
             if (difficulte != FACILE) {
                 reset_game();
-                game->tank_restant[0] = 17;
-                game->tank_restant[1] = 18;
-                game->tank_restant[2] =  5;
+                game->tank_restant[0] = 15;
+                game->tank_restant[1] = 12;
+                game->tank_restant[2] =  3;
                 game->difficulte = FACILE;
             }
         break;
@@ -42,9 +42,9 @@ void application_difficulte(game_t * game, int difficulte) {
             printf("yo\n");
             switch (difficulte) {
                 case FACILE:
-                    game->tank_restant[0] = 17;
-                    game->tank_restant[1] = 18;
-                    game->tank_restant[2] =  5;
+                    game->tank_restant[0] = 15;
+                    game->tank_restant[1] = 12;
+                    game->tank_restant[2] =  3;
                     game->difficulte = FACILE;
                 break;
                 case DIFFICILE:

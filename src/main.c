@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
     surface = IMG_Load("res/TankMap.png");
     game.textures[1] = SDL_CreateTextureFromSurface(renderer,surface);
 
-    surface = IMG_Load("res/menu.png");
+    surface = IMG_Load("res/Menu.png");
     game.textures[2] = SDL_CreateTextureFromSurface(renderer,surface);
 
     surface = IMG_Load("res/Overlay.png");
@@ -121,6 +121,12 @@ int main(int argc, char *argv[])
 
     surface = IMG_Load("res/Neon_Sol.png");
     game.textures[5] = SDL_CreateTextureFromSurface(renderer,surface);
+
+    surface = IMG_Load("res/MenuSelector.png");
+    game.textures[6] = SDL_CreateTextureFromSurface(renderer,surface);
+
+    surface = IMG_Load("res/Overlay_Item_Map.png");
+    game.textures[7] = SDL_CreateTextureFromSurface(renderer,surface);
 
 
     int temps_tir_joueur = 0;
@@ -152,8 +158,16 @@ int main(int argc, char *argv[])
                             changement_touche_jeu(&game, &joueur, &obus, e.key.keysym.sym, &temps_tir_joueur);
                     break;
                     case EN_MENU :
-                        if (e.type == SDL_KEYDOWN) {
-                            changement_touche_menu(&game, e.key.keysym.sym);
+                        switch (e.type) {
+                            case SDL_MOUSEMOTION:
+                                deplacement_souris_menu(&game, e.button.x, e.button.y);
+                            break;
+                            case SDL_MOUSEBUTTONDOWN:
+                                valider_choix_menu(&game);
+                            break;
+                            case SDL_KEYDOWN:
+                                changement_touche_menu(&game, e.key.keysym.sym);
+                            break;
                         }
                     break;
                 }
