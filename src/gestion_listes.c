@@ -60,9 +60,10 @@ tank_t* supprimer_tank(game_t * game, tank_t* liste, int valeur) {
             free(tmp);
             return (liste);
         }
-        previous = tmp; // pour ce souvenir dans la prochaine iteration du precedent
+        previous = tmp; // pour se souvenir dans la prochaine iteration du precedent
         tmp = tmp->nxt;
     }
+
     return liste;
 }
 
@@ -81,12 +82,16 @@ void supprimerObus(obus_t* liste, int valeur) {
             free(tmp);
             return;
         }
-        previous = tmp; // pour ce souvenir dans la prochaine iteration du precedent
+        previous = tmp; // pour se souvenir dans la prochaine iteration du precedent
         tmp = tmp->nxt;
     }
 }
 
 void change_etat_tank(tank_t * liste_tank, game_t * game) {
+    game->tanks_restant= 0;
+    for (int i = 0; i < 3; i++) {
+        game->tanks_restant += game->tank_restant[i];
+    }
     tank_t * ptr = liste_tank->nxt;
     while (ptr != NULL) {
         if (ptr->etat != EN_VIE) {
@@ -153,6 +158,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
                     del = 0;
                 } else if (game->tab[lig][col] == 'B') {
                     game->etat = GAME_OVER;
+                    printf("Base touché fin du jeu");
                 } else {
                     del = 0;
                 }
@@ -178,6 +184,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
                     del = 0;
                 } else if (game->tab[lig][col] == 'B') {
                     game->etat = GAME_OVER;
+                    printf("Base touché fin du jeu");
                 } else {
                     del = 0;
                 }
@@ -202,6 +209,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
                     del = 0;
                 } else if (game->tab[lig][col] == 'B') {
                     game->etat = GAME_OVER;
+                    printf("Base touché fin du jeu");
                 } else {
                     del = 0;
                 }
@@ -226,6 +234,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
                     del = 0;
                 } else if (game->tab[lig][col] == 'B') {
                     game->etat = GAME_OVER;
+                    printf("Base touché fin du jeu");
                 } else {
                     del = 0;
                 }

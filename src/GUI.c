@@ -63,17 +63,39 @@ void  render_joueur (SDL_Renderer *renderer, const game_t *game,  const tank_t *
     SDL_RenderCopy(renderer,game->textures[1],&fullTank[strchr(dirs, joueur->direction)-dirs],&rectGrand);
 }
 
-void render_tank_restant (SDL_Renderer *renderer, const game_t *game) {
-    int somme_tank= 0;
-    for (int i = 0; i < 3; i++) {
-        somme_tank += game->tank_restant[i];
+void render_vie_joueur (SDL_Renderer *renderer, const game_t *game,  const tank_t *joueur) {
+    SDL_Rect rect = { 0, 0, 16, 64 };
+    SDL_Rect pos = { 2*TAILLE, 12*TAILLE, 16, 64 };
+    int nbBarre = 0;
+    switch (joueur->blindage) {
+        case 1:
+            nbBarre = 4;
+        break;
+        case 2:
+            nbBarre = 9;
+        break;
+        case 3:
+            nbBarre = 14;
+        break;
     }
+
+
+    for(int i = 0; i < nbBarre; i++)
+    {
+        SDL_RenderCopy(renderer, game->textures[7], &rect, &pos);
+        pos.x = pos.x + 15;
+    }
+
+
+}
+
+void render_tank_restant (SDL_Renderer *renderer, const game_t *game) {
 
     SDL_Rect rect = { 32, 32, 32, 32 };
 
     int x = 0;
     int y = 0;
-    for (size_t i = 0; i < somme_tank; i++) {
+    for (size_t i = 0; i < game->tanks_restant; i++) {
         SDL_Rect pos = { 2*TAILLE+(x*TAILLE*2), 38*TAILLE+(y*TAILLE*2), 2*TAILLE, 2*TAILLE};
         SDL_RenderCopy(renderer,game->textures[7],&rect,&pos);
         if (x++ > 5) { y++; x = 0; }
@@ -118,7 +140,7 @@ void render_tab(SDL_Renderer * renderer, const game_t * game, const tank_t * jou
                     }
                     SDL_SetRenderTarget(renderer, NULL);
                 break;
-                case 'P':
+                case 'B':
                     SDL_SetRenderTarget(renderer, game->textures[0]);
                     SDL_RenderCopy(renderer,game->textures[0],&clip_poussin,&rect);
                     SDL_SetRenderTarget(renderer, NULL);
@@ -207,6 +229,7 @@ void refresh_screen(SDL_Renderer * renderer, const game_t * game, const tank_t *
         SDL_SetRenderTarget(renderer, game->textures[3]);
         SDL_RenderCopy(renderer,game->textures[3],NULL,NULL);
         SDL_SetRenderTarget(renderer, NULL);
+        render_vie_joueur(renderer, game, tank_liste);
         render_tank_restant(renderer, game);
     }
 

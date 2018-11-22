@@ -65,6 +65,10 @@ void changement_touche_jeu(game_t * game, tank_t * joueur, obus_t * obus, SDL_Ke
             joueur->direction = 'O';
             deplacer(joueur, game);
         break;
+        case SDLK_f:
+            game->etat = GAME_OVER;
+            printf("Jeu arreté manuellement.");
+        break;
         case SDLK_m:
             if (Mix_PlayingMusic() == 1) {
                 Mix_HaltMusic();
@@ -186,6 +190,17 @@ void deplacement_souris_menu(game_t * game, int x, int y) {
 
 }
 
+void changement_touche_fin_jeu(game_t * game, SDL_Keycode key){
+    Mix_HaltMusic();
+     switch (key) {
+        case SDLK_RETURN:
+        case SDLK_ESCAPE:
+            game->etat = EN_MENU;
+            reset_game();
+        break;
+     }
+
+}
 
     /*
 

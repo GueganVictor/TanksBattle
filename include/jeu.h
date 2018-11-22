@@ -28,8 +28,9 @@
 #define EN_JEU 0
 #define EN_MENU 1
 #define EDITEUR 2
-#define GAME_OVER 3
-#define FIN_JEU 4
+#define GAME_OVER 4
+#define GAME_WON 3
+#define FIN_JEU 9
 
 // ETAT TANK
 #define EN_VIE 0
@@ -101,6 +102,8 @@ struct game_t{
 
     int nb_tank;
     int nb_obus;
+
+    int tanks_restant;
 
     SDL_Texture *textures[10];
 

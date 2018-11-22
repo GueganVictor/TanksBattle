@@ -170,15 +170,17 @@ int main(int argc, char *argv[])
                             break;
                         }
                     break;
+                    case GAME_OVER :
+                        changement_touche_fin_jeu(&game, e.key.keysym.sym);
+                    break;
+                    case GAME_WON :
+                        changement_touche_fin_jeu(&game, e.key.keysym.sym);
+                    break;
                 }
             }
 
 
-        if (SDL_GetTicks() > game.temps_tick + 1000 ) {
-            printf("TPS : %d\n", game.cpt );
-            game.temps_tick = SDL_GetTicks();
-            game.cpt = 0;
-        }
+        //print_tps(&game);
 
         switch (game.etat) {
             case EN_JEU:

@@ -21,6 +21,10 @@ void render_editeur(SDL_Renderer *renderer, const game_t *game);
 
 void refresh_screen(SDL_Renderer * renderer, const game_t * game, const tank_t * tank_liste, const obus_t * obus_liste);
 
+void render_tank_restant (SDL_Renderer *renderer, const game_t *game);
+
+void render_vie_joueur (SDL_Renderer *renderer, const game_t *game,  const tank_t *joueur);
+
 void maj_obus ( const obus_t * liste , const game_t * game);
 
 #endif

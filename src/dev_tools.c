@@ -1,5 +1,15 @@
 #include "jeu.h"
 
+void print_tps (game_t * game) {
+
+    if (SDL_GetTicks() > game->temps_tick + 1000 ) {
+            printf("TPS : %d\n", game->cpt );
+            game->temps_tick = SDL_GetTicks();
+            game->cpt = 0;
+        }
+
+}
+
 void print_list_obus(obus_t * liste) {
     obus_t * ptr = liste->nxt;
     while (ptr != NULL) {
@@ -19,7 +29,7 @@ void print_list_tank(tank_t * liste) {
 }
 
 void decrease_armor(tank_t * liste) {
-    tank_t * ptr = liste->nxt;
+    tank_t * ptr = liste;
     while (ptr != NULL) {
         ptr->blindage--;
         ptr = ptr->nxt;

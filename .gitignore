@@ -1,1 +1,3 @@
-./exo
+bin/*
+res/editeur_map.data
+.vscode

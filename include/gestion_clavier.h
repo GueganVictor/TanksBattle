@@ -11,4 +11,6 @@ void deplacement_souris_menu(game_t * game, int x, int y);
 
 void valider_choix_menu(game_t * game);
 
+void changement_touche_fin_jeu(game_t * game, SDL_Keycode key);
+
 #endif
