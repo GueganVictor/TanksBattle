@@ -64,8 +64,8 @@ void  render_joueur (SDL_Renderer *renderer, const game_t *game,  const tank_t *
 }
 
 void render_vie_joueur (SDL_Renderer *renderer, const game_t *game,  const tank_t *joueur) {
-    SDL_Rect rect = { 0, 0, 16, 64 };
-    SDL_Rect pos = { 2*TAILLE, 12*TAILLE, 16, 64 };
+    SDL_Rect rect = { 0, 0, 32, 64 };
+    SDL_Rect pos = { 2*TAILLE, 12*TAILLE, 32, 64 };
     int nbBarre = 0;
     switch (joueur->blindage) {
         case 1:
@@ -95,7 +95,7 @@ void render_tank_restant (SDL_Renderer *renderer, const game_t *game) {
 
     int x = 0;
     int y = 0;
-    for (size_t i = 0; i < game->tanks_restant; i++) {
+    for (size_t i = 0; i < ( NB_TANKS - game->tanks_tue); i++) {
         SDL_Rect pos = { 2*TAILLE+(x*TAILLE*2), 38*TAILLE+(y*TAILLE*2), 2*TAILLE, 2*TAILLE};
         SDL_RenderCopy(renderer,game->textures[7],&rect,&pos);
         if (x++ > 5) { y++; x = 0; }
@@ -192,7 +192,7 @@ void render_menu(SDL_Renderer *renderer, const game_t *game) {
 
 void render_editeur(SDL_Renderer *renderer, const game_t *game) {
     render_tab(renderer, game, NULL);
-
+    SDL_SetRenderDrawColor( renderer, 255, 0, 0, 125 );
     SDL_Rect rectGauche = { 18*TAILLE, TAILLE*2, 5*TAILLE, 5*TAILLE };
     SDL_Rect rectDroite = { LARGEUR_FENETRE-TAILLE*2-(5*TAILLE), TAILLE*2, 5*TAILLE, 5*TAILLE };
     SDL_RenderFillRect( renderer, &rectGauche );
@@ -206,10 +206,15 @@ void render_gameover(SDL_Renderer *renderer, const game_t *game) {
 
 }
 
+void render_gamewon(SDL_Renderer *renderer, const game_t *game) {
+
+    SDL_SetRenderDrawColor( renderer, 0, 255, 0, 125 );
+
+}
+
 void refresh_screen(SDL_Renderer * renderer, const game_t * game, const tank_t * tank_liste, const obus_t * obus_liste) {
 
     SDL_SetRenderDrawColor( renderer, 50, 50, 50, 255 );
-
     switch (game->etat) {
         case EN_JEU:
             render_game(renderer, game, tank_liste, obus_liste);
@@ -223,7 +228,11 @@ void refresh_screen(SDL_Renderer * renderer, const game_t * game, const tank_t *
         case GAME_OVER:
             render_gameover(renderer, game);
         break;
+        case GAME_WON:
+            render_gamewon(renderer, game);
+        break;
     }
+
 
     if (game->etat != EN_MENU) {
         SDL_SetRenderTarget(renderer, game->textures[3]);
@@ -232,6 +241,7 @@ void refresh_screen(SDL_Renderer * renderer, const game_t * game, const tank_t *
         render_vie_joueur(renderer, game, tank_liste);
         render_tank_restant(renderer, game);
     }
+
 
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderPresent(renderer);

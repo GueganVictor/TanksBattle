@@ -26,7 +26,7 @@ void changement_mode_editeur(game_t * game, SDL_Keycode key) {
             game->case_editeur = '.';
         break;
         case SDLK_r :
-            game->case_editeur = 'P';
+            game->case_editeur = 'B';
         break;
         case SDLK_ESCAPE :
             game->etat = EN_MENU;
@@ -78,7 +78,7 @@ void changement_touche_jeu(game_t * game, tank_t * joueur, obus_t * obus, SDL_Ke
         break;
         case SDLK_SPACE:
             if (SDL_GetTicks() > *temps_tir_joueur + 250 ) {
-                Mix_PlayChannel(-1, game->explosion, 0);
+                Mix_PlayChannel(-1, game->effets[1], 0);
                 tirer_obus(joueur, game,obus);
                 *temps_tir_joueur = SDL_GetTicks();
             }
@@ -102,24 +102,24 @@ void changement_touche_jeu(game_t * game, tank_t * joueur, obus_t * obus, SDL_Ke
 
 }
 
-void valider_choix_menu(game_t * game) {
+void valider_choix_menu(game_t * game, tank_t * liste_tank, obus_t * liste_obus) {
     switch (game->choix_menu) {
         case 0:
             game->etat = EN_JEU;
-            application_difficulte(game, FACILE);
+            application_difficulte(game, FACILE, liste_tank, liste_obus);
             Mix_PlayMusic( game->music, -1);
             printf("Passage en mode JEU : diff = facile\n");
         break;
         case 1:
             game->etat = EN_JEU;
-            application_difficulte(game, DIFFICILE);
+            application_difficulte(game, DIFFICILE, liste_tank, liste_obus);
             game->difficulte = DIFFICILE;
             Mix_PlayMusic( game->music, -1);
             printf("Passage en mode JEU : diff = difficile\n");
         break;
         case 2:
             game->etat = EN_JEU;
-            application_difficulte(game, INFERNO);
+            application_difficulte(game, INFERNO, liste_tank, liste_obus);
             game->difficulte = INFERNO;
             Mix_PlayMusic( game->music, -1);
             printf("Passage en mode JEU : diff = INFERNO\n");
@@ -135,26 +135,27 @@ void valider_choix_menu(game_t * game) {
     }
 }
 
-void changement_touche_menu(game_t * game, SDL_Keycode key) {
+void changement_touche_menu(game_t * game, SDL_Keycode key, tank_t * tank, obus_t * obus ) {
     printf("Mode de jeu ? %d\n", game->choix_menu );
     if (game->choix_menu == -1) {
         game->choix_menu = 0;
         return;
     }
-
     switch (key) {
         case SDLK_RETURN:
-            valider_choix_menu(game);
+            valider_choix_menu(game, tank, obus);
         break;
         case SDLK_RIGHT:
             if (++game->choix_menu > 4) {
                 game->choix_menu = 0;
             }
+            Mix_PlayChannel(-1, game->effets[0], 0);
         break;
         case SDLK_LEFT:
             if (--game->choix_menu < 0) {
                 game->choix_menu = 4;
             }
+            Mix_PlayChannel(-1, game->effets[0], 0);
         break;
         case SDLK_UP:
             if (game->choix_menu > 2) {
@@ -162,6 +163,7 @@ void changement_touche_menu(game_t * game, SDL_Keycode key) {
             } else {
                 game->choix_menu = 3;
             }
+            Mix_PlayChannel(-1, game->effets[0], 0);
         break;
         case SDLK_DOWN:
             if (game->choix_menu < 3) {
@@ -169,6 +171,7 @@ void changement_touche_menu(game_t * game, SDL_Keycode key) {
             } else {
                 game->choix_menu = 0;
             }
+            Mix_PlayChannel(-1, game->effets[0], 0);
         break;
     }
 }
@@ -190,17 +193,18 @@ void deplacement_souris_menu(game_t * game, int x, int y) {
 
 }
 
-void changement_touche_fin_jeu(game_t * game, SDL_Keycode key){
+void changement_touche_fin_jeu(game_t * game, SDL_Keycode key, tank_t * tank_liste, obus_t * liste_obus){
     Mix_HaltMusic();
      switch (key) {
         case SDLK_RETURN:
         case SDLK_ESCAPE:
             game->etat = EN_MENU;
-            reset_game();
+            reset_game(game, tank_liste, liste_obus);
         break;
      }
 
 }
+
 
     /*
 

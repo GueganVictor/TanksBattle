@@ -1,6 +1,10 @@
 #ifndef GESTION_OBUS_H
 #define GESTION_OBUS_H
 
+void free_liste_tank (tank_t * liste, game_t * game);
+
+void free_liste_obus (obus_t * liste, game_t * game);
+
 obus_t * creer_obus(tank_t * tank);
 
 void enemi_touche(int lig, int col, game_t * game, tank_t * liste_tank);

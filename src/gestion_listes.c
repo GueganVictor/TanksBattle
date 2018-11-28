@@ -8,11 +8,13 @@
 #include "gestion_carte.h"
 #include "dev_tools.h"
 
+
 obus_t * creer_obus(tank_t * tank, game_t * game) {
     obus_t * obus = (obus_t*)malloc(sizeof(obus_t));
     obus->num_obus = ++game->nb_obus;
     obus->direction = tank->direction;
     obus->provenance = tank->type;
+    obus->niveau = tank->blindage_orig;
     switch (obus->direction) {
         case 'N':
             obus->pos_lig = tank->pos_lig-2;
@@ -44,8 +46,8 @@ tank_t* supprimer_tank(game_t * game, tank_t* liste, int valeur) {
     tank_t  *previous;
     if (liste == NULL) // si la listee est NULL on s'arrete tout de suite
     return (liste);
+    game->tanks_tue++;
     if (liste->nxt == game->tail) {
-        printf("on s'occupe de tout\n");
         tank_update(game, liste->nxt, '.');
         free(game->tail);
         game->tail = liste;
@@ -88,10 +90,6 @@ void supprimerObus(obus_t* liste, int valeur) {
 }
 
 void change_etat_tank(tank_t * liste_tank, game_t * game) {
-    game->tanks_restant= 0;
-    for (int i = 0; i < 3; i++) {
-        game->tanks_restant += game->tank_restant[i];
-    }
     tank_t * ptr = liste_tank->nxt;
     while (ptr != NULL) {
         if (ptr->etat != EN_VIE) {
@@ -132,6 +130,61 @@ void joueur_touche(game_t * game) {
     //game->etat = FIN_JEU;
 }
 
+int obus_next_case (game_t * game, obus_t * obus, tank_t * liste_tank, int lig, int col) {
+
+    switch (game->tab[lig][col]) {
+        case '.' :
+        case 'O' :
+            obus->pos_lig = lig;
+            obus->pos_col = col;
+        break;
+        case 'm':
+            game->tab[lig][col] = '.';
+            return 0;
+        break;
+        case 'M':
+            if (obus->niveau == 3) {
+                game->tab[lig][col] = '.';
+                return 0;
+            }
+            return 0;
+        break;
+        case 'E':
+            if (obus->provenance == 'J') {
+                switch (obus->direction){
+                    case 'N':
+                        enemi_touche(lig-1, col, game, liste_tank);
+                    break;
+                    case 'O':
+                        enemi_touche(lig, col-1, game, liste_tank);
+                    break;
+                    case 'S':
+                        enemi_touche(lig+1, col, game, liste_tank);
+                    break;
+                    case 'E':
+                        enemi_touche(lig, col+1, game, liste_tank);
+                    break;
+                }
+                return 0;
+            }
+            return 0;
+        break;
+        case 'X':
+            joueur_touche(game);
+            return 0;
+        break;
+        case 'B':
+            game->etat = GAME_OVER;
+            printf("Base touché fin du jeu");
+            return 0;
+        break;
+        default:
+            return 1;
+        break;
+    }
+    return 1;
+}
+
 void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t * liste_tank) {
     game->tab[obus->pos_lig][obus->pos_col] = '.';
 
@@ -145,23 +198,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
             } else {
                 lig = obus->pos_lig-1;
                 col = obus->pos_col;
-                if (game->tab[lig][col] == '.' || game->tab[lig][col] == 'O') {
-                    obus->pos_lig = lig;
-                } else if ( game->tab[lig][col] == 'm' ) {
-                    game->tab[lig][col] = '.';
-                    del = 0;
-                } else if (game->tab[lig][col] == 'E' && obus->provenance == 'J') {
-                    enemi_touche(lig-1, col, game, liste_tank);
-                    del = 0;
-                } else if (game->tab[lig][col] == 'X') {
-                    joueur_touche(game);
-                    del = 0;
-                } else if (game->tab[lig][col] == 'B') {
-                    game->etat = GAME_OVER;
-                    printf("Base touché fin du jeu");
-                } else {
-                    del = 0;
-                }
+                del = obus_next_case(game, obus, liste_tank, lig, col);
             }
 
         break;
@@ -171,23 +208,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
             } else {
                 lig = obus->pos_lig;
                 col = obus->pos_col-1;
-                if (game->tab[lig][col] == '.' || game->tab[lig][col] == 'O') {
-                    obus->pos_col = col;
-                } else if ( game->tab[lig][col] == 'm' ) {
-                    game->tab[lig][col] = '.';
-                    del = 0;
-                } else if (game->tab[lig][col] == 'E' && obus->provenance == 'J') {
-                    enemi_touche(lig, col-1, game, liste_tank);
-                    del = 0;
-                } else if (game->tab[lig][col] == 'X') {
-                    joueur_touche(game);
-                    del = 0;
-                } else if (game->tab[lig][col] == 'B') {
-                    game->etat = GAME_OVER;
-                    printf("Base touché fin du jeu");
-                } else {
-                    del = 0;
-                }
+                del = obus_next_case(game, obus, liste_tank, lig, col);
             }
         break;
         case 'S':
@@ -196,23 +217,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
             } else {
                 lig = obus->pos_lig+1;
                 col = obus->pos_col;
-                if (game->tab[lig][col] == '.' || game->tab[lig][col] == 'O') {
-                    obus->pos_lig = lig;
-                } else if ( game->tab[lig][col] == 'm' ) {
-                    game->tab[lig][col] = '.';
-                    del = 0;
-                } else if (game->tab[lig][col] == 'E' && obus->provenance == 'J') {
-                    enemi_touche(lig+1, col, game, liste_tank);
-                    del = 0;
-                } else if (game->tab[lig][col] == 'X') {
-                    joueur_touche(game);
-                    del = 0;
-                } else if (game->tab[lig][col] == 'B') {
-                    game->etat = GAME_OVER;
-                    printf("Base touché fin du jeu");
-                } else {
-                    del = 0;
-                }
+                del = obus_next_case(game, obus, liste_tank, lig, col);
             }
         break;
         case 'E':
@@ -221,23 +226,7 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
             } else {
                 lig = obus->pos_lig;
                 col = obus->pos_col+1;
-                if (game->tab[lig][col] == '.' || game->tab[lig][col] == 'O') {
-                    obus->pos_col = col;
-                } else if ( game->tab[lig][col] == 'm' ) {
-                    game->tab[lig][col] = '.';
-                    del = 0;
-                } else if (game->tab[lig][col] == 'E' && obus->provenance == 'J') {
-                    enemi_touche(lig, col+1, game, liste_tank);
-                    del = 0;
-                } else if (game->tab[lig][col] == 'X') {
-                    joueur_touche(game);
-                    del = 0;
-                } else if (game->tab[lig][col] == 'B') {
-                    game->etat = GAME_OVER;
-                    printf("Base touché fin du jeu");
-                } else {
-                    del = 0;
-                }
+                del = obus_next_case(game, obus, liste_tank, lig, col);
             }
         break;
     }
@@ -247,8 +236,6 @@ void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t *
     } else {
         obus->render_pos_lig = obus->pos_lig * TAILLE;
         obus->render_pos_col = obus->pos_col * TAILLE;
-
-        game->tab[obus->pos_lig][obus->pos_col] = 'O';
     }
 }
 
@@ -275,64 +262,53 @@ void afficherobus(obus_t * liste) {
 void ajouter_obus (tank_t * tank, game_t * game, obus_t * liste) {
     obus_t * obus =  creer_obus(tank, game);
     obus_t * ptr = liste;
-    //printf("Ajout obus.\n");
     while (ptr->nxt != NULL) {
         ptr = ptr->nxt;
     }
-    game->tab[obus->pos_lig][obus->pos_col] = 'O';
     ptr->nxt = obus;
+}
+
+int verif_tirer_obus (tank_t * tank, game_t * game, obus_t * liste, int lig, int col) {
+    int del = 1;
+    if ( lig < 1 || col >= LARGEUR_TAB-1 || col < 1 || lig >= HAUTEUR_TAB-1) {
+        return 0;
+    } else switch (game->tab[lig][col]) {
+        case 'm' :
+            game->tab[lig][col] = '.';
+            del = 0;
+        break;
+        case 'E' :
+            if (tank->type == 'E') {
+                del = 0;
+            }
+        break;
+        case 'M' :
+            if (tank->blindage_orig == 3) {
+                game->tab[lig][col] = '.';
+            }
+            del = 0;
+        break;
+        case 'B' :
+            game->etat = GAME_OVER;
+        break;
+    }
+    return del;
 }
 
 void tirer_obus(tank_t * tank, game_t * game, obus_t * liste) {
     int del = 1;
     switch (tank->direction) {
         case 'N':
-            if (tank->pos_lig-2 < 1) {
-                del = 0;
-            } else if (game->tab[tank->pos_lig-2][tank->pos_col] != '.') {
-                if ( game->tab[tank->pos_lig-2][tank->pos_col] == 'm') {
-                    game->tab[tank->pos_lig-2][tank->pos_col] = '.';
-                    del = 0;
-                } else {
-                    del = 1;
-                }
-            }
+            del = verif_tirer_obus(tank, game, liste, tank->pos_lig-2, tank->pos_col);
         break;
         case 'O':
-            if (tank->pos_col-2 < 1)  {
-                del = 0;
-            } else if (game->tab[tank->pos_lig][tank->pos_col-2] != '.') {
-                if (game->tab[tank->pos_lig][tank->pos_col-2] == 'm') {
-                    game->tab[tank->pos_lig][tank->pos_col-2] = '.';
-                    del = 0;
-                } else {
-                    del = 1;
-                }
-            }
+            del = verif_tirer_obus(tank, game, liste, tank->pos_lig, tank->pos_col-2);
         break;
         case 'S':
-            if (tank->pos_lig+2 > HAUTEUR_TAB-1) {
-                del = 0;
-            } else if (game->tab[tank->pos_lig+2][tank->pos_col] != '.') {
-                if (game->tab[tank->pos_lig+2][tank->pos_col] == 'm') {
-                    game->tab[tank->pos_lig+2][tank->pos_col] = '.';
-                    del = 0;
-                } else {
-                    del = 1;
-                }
-            }
+            del = verif_tirer_obus(tank, game, liste, tank->pos_lig+2, tank->pos_col);
         break;
         case 'E':
-            if (tank->pos_col+2 > LARGEUR_TAB-1) {
-                del = 0;
-            } else if (game->tab[tank->pos_lig][tank->pos_col+2] != '.') {
-                if (game->tab[tank->pos_lig][tank->pos_col+2] == 'm') {
-                    game->tab[tank->pos_lig][tank->pos_col+2] = '.';
-                    del = 0;
-                } else {
-                    del = 1;
-                }
-            }
+            del = verif_tirer_obus(tank, game, liste, tank->pos_lig, tank->pos_col+2);
         break;
     }
     if (del) {
@@ -366,7 +342,7 @@ tank_t * creer_tank(game_t * game, int blindage) {
     tank->type = 'E';
     tank->etat = EN_VIE;
 
-    tank->blindage_orig = 2;
+    tank->blindage_orig = blindage;
     tank->nb_hit = 0;
 
     tank->nxt = NULL;
@@ -432,4 +408,25 @@ void deplacer_tanks (tank_t * liste, game_t * game) {
 
         ptr = ptr->nxt;
     }
+}
+
+
+void free_liste_tank (tank_t * liste, game_t * game) {
+
+    tank_t * ptr = liste->nxt;
+    while (ptr != NULL) {
+        supprimer_tank(game, ptr, ptr->num_tank);
+        ptr = ptr->nxt;
+    }
+
+}
+
+void free_liste_obus (obus_t * liste, game_t * game) {
+
+    obus_t * ptr = liste->nxt;
+    while (ptr != NULL) {
+        supprimerObus(ptr, ptr->num_obus);
+        ptr = ptr->nxt;
+    }
+
 }

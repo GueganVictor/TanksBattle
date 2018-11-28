@@ -104,8 +104,7 @@ int verif_deplacement (tank_t * tank, game_t * game) {
     return 1;
 }
 
-void remplissage_tab(int nbLig, int nbCol, char** tab) {
-    char * fichier = "res/map.data";
+void remplissage_tab(int nbLig, int nbCol, char** tab, char * fichier) {
     char c;
     FILE *file;
     file = fopen(fichier, "r");
@@ -128,10 +127,10 @@ void remplissage_tab(int nbLig, int nbCol, char** tab) {
 }
 
 
-char ** create_tab(int nbLig, int nbCol) {
+char ** create_tab(int nbLig, int nbCol, char * fichier) {
     printf("Taille carte : %d x %d\n", nbLig, nbCol );
     char **tab = alloc_tab(nbLig, nbCol);
-    remplissage_tab(nbLig, nbCol, tab);
+    remplissage_tab(nbLig, nbCol, tab, fichier);
     return tab;
 }
 

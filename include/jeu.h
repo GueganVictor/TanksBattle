@@ -45,6 +45,9 @@
 #define INFERNO 3
 #define NON_DEFINI -1
 
+
+#define NB_TANKS 30
+
 typedef struct tank_t tank_t;
 struct tank_t {
     int num_tank;
@@ -82,6 +85,7 @@ struct obus_t {
 
     char direction;
     char provenance;
+    char niveau;
     char etat;
 
     struct obus_t * nxt;
@@ -103,12 +107,12 @@ struct game_t{
     int nb_tank;
     int nb_obus;
 
-    int tanks_restant;
+    int tanks_tue;
 
     SDL_Texture *textures[10];
 
     Mix_Music * music;
-    Mix_Chunk * explosion;
+    Mix_Chunk * effets[2];
 
     tank_t * tail;
 
