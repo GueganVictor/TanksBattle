@@ -18,14 +18,14 @@
 
     apt-get install libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev
 
-### &nbsp;&nbsp;Installation :
-
-### &nbsp;&nbsp;&nbsp;&nbsp;Pour lancer le jeu, faites :
-
-    make clean; make; bin/main
-
 Si vous êtes sous Windows, je vous conseille de suivre ce tuto de LazyFoo Productions :
 
     http://lazyfoo.net/tutorials/SDL/01_hello_SDL/windows/index.php
 
 L'application étant principalement désignée pour un système Linux, il y a des risques de bugs, incompatibilité avec Windows.
+
+### &nbsp;&nbsp;Installation :
+
+### &nbsp;&nbsp;&nbsp;&nbsp;Pour lancer le jeu, faites :
+
+    make clean; make; bin/main
