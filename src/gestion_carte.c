@@ -5,7 +5,9 @@
 #include <math.h>
 
 #include "jeu.h"
+#include "gestion_listes.h"
 
+// alloue dynamiquement la mémoire pour le tableau
 char ** alloc_tab (int lig, int col) {
     char** array = malloc(lig*sizeof(char*));
     for (int i = 0; i < lig; i++) {
@@ -14,6 +16,7 @@ char ** alloc_tab (int lig, int col) {
     return array;
 }
 
+// met à jour la position d'un tank sur la carte
 void tank_update( game_t *game, tank_t *tank, char car) {
     int posLig = tank->pos_lig;
     int posCol = tank->pos_col;
@@ -28,6 +31,7 @@ void tank_update( game_t *game, tank_t *tank, char car) {
     game->tab[posLig-1][posCol+1] = car;
 }
 
+// fonction pour afficher la carte sur le terminal
 void show_tab_term (int nbLig, int nbCol, char ** tab) {
     for (int lig = 0; lig < nbLig; lig++) {
         for (int col = 0; col < nbCol; col++) {
@@ -38,77 +42,32 @@ void show_tab_term (int nbLig, int nbCol, char ** tab) {
     printf("\n");
 }
 
+// vérifie si un tank peut avancer
+int verif_deplacement ( game_t * game, tank_t * tank , int lig, int col, int lig1, int col1, int lig2, int col2 ) {
+    if (game->tab[lig][col] == '.' || game->tab[lig][col] == 'A' ) {
 
-void deplacer(tank_t *tank, game_t *game ) {
-    tank_update(game, tank, '.');
+        if (game->tab[lig][col] == 'A' && tank->type == 'J') appliquer_bonus(game);
 
-    int col, lig;
-    switch (tank->direction) {
-        case 'N':
-            if (tank->pos_lig == 1) {
-                break;
-            } else {
-                lig = tank->pos_lig-2;
-                col = tank->pos_col-1;
-                if (game->tab[lig][col] == '.' && game->tab[lig][col+1] == '.' && game->tab[lig][col+2] == '.') {
-                    tank->pos_lig = tank->pos_lig-1;
-                }
-            }
+        if (game->tab[lig1][col1] == '.' || game->tab[lig1][col1] == 'A' ) {
 
-        break;
-        case 'O':
-            if (tank->pos_col == 1) {
-                break;
-            } else {
-                lig = tank->pos_lig-1;
-                col = tank->pos_col-2;
-                if (game->tab[lig][col] == '.' && game->tab[lig+1][col] == '.' && game->tab[lig+2][col] == '.') {
-                    tank->pos_col = tank->pos_col-1;
-                }
+            if (game->tab[lig1][col1] == 'A' && tank->type == 'J') appliquer_bonus(game);
+
+            if (game->tab[lig2][col2] == '.' || game->tab[lig2][col2] == 'A' ) {
+
+                if (game->tab[lig2][col2] == 'A' && tank->type == 'J') appliquer_bonus(game);
+
+                return 1;
             }
-        break;
-        case 'S':
-            if (tank->pos_lig == HAUTEUR_TAB-2) {
-                break;
-            } else {
-                lig = tank->pos_lig+2;
-                col = tank->pos_col-1;
-                if (game->tab[lig][col] == '.' && game->tab[lig][col+1] == '.' && game->tab[lig][col+2] == '.') {
-                    tank->pos_lig = tank->pos_lig+1;
-                }
-            }
-        break;
-        case 'E':
-            if (tank->pos_col == LARGEUR_TAB-2) {
-                break;
-            } else {
-                lig = tank->pos_lig-1;
-                col = tank->pos_col+2;
-                if (game->tab[lig][col] == '.' && game->tab[lig+1][col] == '.' && game->tab[lig+2][col] == '.') {
-                    tank->pos_col = tank->pos_col+1;
-                }
-            }
-        break;
+        }
     }
-    tank_update(game, tank, 'X');
-    if (tank->type == 'E') {
-        tank->render_pos_lig = (tank->pos_lig - 1 ) * TAILLE;
-        tank->render_pos_col = (tank->pos_col - 1 ) * TAILLE;
-
-        tank_update(game, tank, 'E');
-    }
-    //show_tab_term(HAUTEUR_TAB, LARGEUR_TAB, game->tab);
+    return 0;
 }
 
-int verif_deplacement (tank_t * tank, game_t * game) {
-    return 1;
-}
-
+// rempli le tableau avec les caractères du fichier placés en paramètre
 void remplissage_tab(int nbLig, int nbCol, char** tab, char * fichier) {
     char c;
     FILE *file;
     file = fopen(fichier, "r");
-    printf("remplissage carte : %d x %d\n", nbLig, nbCol );
     if (file) {
         printf("Fichier chargé.\n");
         for (int lig = 0; lig < nbLig; lig++) {
@@ -126,7 +85,7 @@ void remplissage_tab(int nbLig, int nbCol, char** tab, char * fichier) {
     }
 }
 
-
+// créer le tableau de la carte
 char ** create_tab(int nbLig, int nbCol, char * fichier) {
     printf("Taille carte : %d x %d\n", nbLig, nbCol );
     char **tab = alloc_tab(nbLig, nbCol);
@@ -134,7 +93,7 @@ char ** create_tab(int nbLig, int nbCol, char * fichier) {
     return tab;
 }
 
-
+// rempli un tableau vide
 void remplissage_tab_vide(int nbLig, int nbCol, char** tab) {
     for (int lig = 0; lig < nbLig; lig++) {
         for (int col = 0; col < nbCol; col++) {
@@ -142,7 +101,7 @@ void remplissage_tab_vide(int nbLig, int nbCol, char** tab) {
         }
     }
 }
-
+// renvoit un tableau vide
 char ** create_tab_vide(int nbLig, int nbCol) {
     char **tab = alloc_tab(nbLig, nbCol);
     remplissage_tab_vide(nbLig, nbCol, tab);

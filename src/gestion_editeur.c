@@ -8,6 +8,7 @@
 #include "jeu.h"
 #include "gestion_carte.h"
 
+// enregistre la carte créer par l'utiliser
 void write_data (game_t * game) {
     FILE *fptr;
     fptr = fopen("res/editeur_map.data", "w");
@@ -30,7 +31,7 @@ void write_data (game_t * game) {
     fclose(fptr);
 }
 
-
+// récupérer la case sur laquelle l'utilisateur à cliquer 
 void get_case(int lig, int col, game_t * game) {
     if ( (lig >= 0 && col < HAUTEUR_TAB && col >= 0 && lig < LARGEUR_TAB)) {
         if ( (lig < 5 && col < 5) || (lig > 74 && col < 5) ) {
@@ -42,7 +43,7 @@ void get_case(int lig, int col, game_t * game) {
 
 }
 
-
+// affiche les instructions
 void afficher_instruction(game_t * game) {
     system("clear");
     char cases[4] = {'M','m','.','B'};

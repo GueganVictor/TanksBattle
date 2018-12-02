@@ -41,12 +41,15 @@ void render_tank_enemi(SDL_Renderer *renderer, const game_t *game,  const tank_t
 void render_obus(SDL_Renderer *renderer, const game_t *game,  const obus_t *liste) {
     obus_t * ptr = liste->nxt;
     SDL_Rect obus[4] = { { 0, 32, 16, 16}, { 16, 32, 16, 16}, { 32, 32, 16, 16}, { 48, 32, 16, 16}};
+    SDL_Rect obusE[4] = { { 0, 48, 16, 16}, { 16, 48, 16, 16}, { 32, 48, 16, 16}, { 48, 48, 16, 16}};
     char dirs[4] = { 'S','N','O','E'};
     while (ptr != NULL) {
         SDL_Rect rect = {ptr->render_pos_col + (TAILLE*18), ptr->render_pos_lig + (TAILLE*2), TAILLE, TAILLE};
-
         SDL_SetRenderTarget(renderer, game->textures[0]);
-        SDL_RenderCopy(renderer,game->textures[0],&obus[strchr(dirs, ptr->direction)-dirs],&rect);
+        if (ptr->provenance == 'J')
+            SDL_RenderCopy(renderer,game->textures[0],&obus[strchr(dirs, ptr->direction)-dirs],&rect);
+        else
+            SDL_RenderCopy(renderer,game->textures[0],&obusE[strchr(dirs, ptr->direction)-dirs],&rect);
         SDL_SetRenderTarget(renderer, NULL);
         ptr = ptr->nxt;
     }
@@ -101,7 +104,7 @@ void render_tank_restant (SDL_Renderer *renderer, const game_t *game) {
         if (x++ > 5) { y++; x = 0; }
     }
 }
-
+// affiche les cases du tableau
 void render_tab(SDL_Renderer * renderer, const game_t * game, const tank_t * joueur) {
 
     char ** tab = alloc_tab(LARGEUR_TAB, HAUTEUR_TAB);
@@ -119,6 +122,7 @@ void render_tab(SDL_Renderer * renderer, const game_t * game, const tank_t * jou
     SDL_Rect clip_mur[2] = { { 0, 0, 16, 16 }, { 16, 0, 16, 16 } };
     SDL_Rect clip_mur_casse[2] = { { 32, 0, 16, 16 }, { 48, 0, 16, 16 }};
     SDL_Rect clip_poussin = { 48, 16, 16, 16 };
+    SDL_Rect clip_bonus = { 32, 16, 16, 16 };
 
     int posX = TAILLE*18;
     int posY = TAILLE*2;
@@ -145,6 +149,11 @@ void render_tab(SDL_Renderer * renderer, const game_t * game, const tank_t * jou
                     SDL_RenderCopy(renderer,game->textures[0],&clip_poussin,&rect);
                     SDL_SetRenderTarget(renderer, NULL);
                 break;
+                case 'A':
+                    SDL_SetRenderTarget(renderer, game->textures[0]);
+                    SDL_RenderCopy(renderer,game->textures[0],&clip_bonus,&rect);
+                    SDL_SetRenderTarget(renderer, NULL);
+                break;
                 case 'm':
                     SDL_SetRenderTarget(renderer, game->textures[0]);
                     if (col % 2 == 0) {
@@ -166,14 +175,14 @@ void render_tab(SDL_Renderer * renderer, const game_t * game, const tank_t * jou
         posY = posY + TAILLE;
     }
 }
-
+// appelle les fonctions d'affichage du jeu
 void render_game(SDL_Renderer *renderer, const game_t *game,  const tank_t *joueur, const obus_t *obus) {
     render_tab(renderer, game, joueur);
     render_tank_enemi ( renderer, game, joueur );
     render_obus ( renderer, game, obus );
 
 }
-
+// affiche le menu
 void render_menu(SDL_Renderer *renderer, const game_t *game) {
     SDL_SetRenderTarget(renderer, game->textures[2]);
     SDL_RenderCopy(renderer,game->textures[2],NULL,NULL);
@@ -189,7 +198,7 @@ void render_menu(SDL_Renderer *renderer, const game_t *game) {
     SDL_RenderCopy(renderer,game->textures[6],NULL,&position);
     SDL_SetRenderTarget(renderer, NULL);
 }
-
+// affiche l'éditeur 
 void render_editeur(SDL_Renderer *renderer, const game_t *game) {
     render_tab(renderer, game, NULL);
     SDL_SetRenderDrawColor( renderer, 255, 0, 0, 125 );
@@ -199,19 +208,19 @@ void render_editeur(SDL_Renderer *renderer, const game_t *game) {
     SDL_RenderFillRect( renderer, &rectDroite );
 
 }
-
+// affiche GO
 void render_gameover(SDL_Renderer *renderer, const game_t *game) {
 
     SDL_SetRenderDrawColor( renderer, 255, 0, 0, 125 );
-
 }
+// affiche victoire
 
 void render_gamewon(SDL_Renderer *renderer, const game_t *game) {
 
     SDL_SetRenderDrawColor( renderer, 0, 255, 0, 125 );
 
 }
-
+// raffraichis l'écran
 void refresh_screen(SDL_Renderer * renderer, const game_t * game, const tank_t * tank_liste, const obus_t * obus_liste) {
 
     SDL_SetRenderDrawColor( renderer, 50, 50, 50, 255 );
@@ -247,7 +256,7 @@ void refresh_screen(SDL_Renderer * renderer, const game_t * game, const tank_t *
     SDL_RenderPresent(renderer);
 }
 
-
+// met a jour le déplacement d'un obus graphiquement 
 void maj_obus (  obus_t * liste , const game_t * game) {
     obus_t * ptr = liste->nxt;
     int lig, col;

@@ -13,7 +13,7 @@
 #include "gestion_jeu.h"
 #include "dev_tools.h"
 
-
+//  permet de changer la case pour l'éditeur
 void changement_mode_editeur(game_t * game, SDL_Keycode key) {
     switch (key) {
         case SDLK_a :
@@ -35,14 +35,14 @@ void changement_mode_editeur(game_t * game, SDL_Keycode key) {
             remplissage_tab_vide(HAUTEUR_TAB, LARGEUR_TAB, game->tab_editeur);
         break;
         case SDLK_s :
-            printf("save\n");
+            printf("Fichier sauvegardé !\n");
             write_data(game);
             game->etat = EN_MENU;
         break;
     }
     afficher_instruction(game);
 }
-
+// gestion des touches quand le jeu est lancé
 void changement_touche_jeu(game_t * game, tank_t * joueur, obus_t * obus, SDL_Keycode key, int * temps_tir_joueur) {
     switch (key) {
         case SDLK_UP:
@@ -54,7 +54,6 @@ void changement_touche_jeu(game_t * game, tank_t * joueur, obus_t * obus, SDL_Ke
             deplacer(joueur, game);
         break;
         case SDLK_a:
-            printf("yo\n");
             ajouter_tank(joueur, game);
         break;
         case SDLK_DOWN:
@@ -101,42 +100,37 @@ void changement_touche_jeu(game_t * game, tank_t * joueur, obus_t * obus, SDL_Ke
     }
 
 }
-
+// valide le choix du menu par l'initiateur
 void valider_choix_menu(game_t * game, tank_t * liste_tank, obus_t * liste_obus) {
     switch (game->choix_menu) {
         case 0:
             game->etat = EN_JEU;
             application_difficulte(game, FACILE, liste_tank, liste_obus);
             Mix_PlayMusic( game->music, -1);
-            printf("Passage en mode JEU : diff = facile\n");
         break;
         case 1:
             game->etat = EN_JEU;
             application_difficulte(game, DIFFICILE, liste_tank, liste_obus);
             game->difficulte = DIFFICILE;
             Mix_PlayMusic( game->music, -1);
-            printf("Passage en mode JEU : diff = difficile\n");
         break;
         case 2:
             game->etat = EN_JEU;
             application_difficulte(game, INFERNO, liste_tank, liste_obus);
             game->difficulte = INFERNO;
             Mix_PlayMusic( game->music, -1);
-            printf("Passage en mode JEU : diff = INFERNO\n");
         break;
         case 3:
             game->etat = EDITEUR;
-            printf("Passage en mode EDITEUR\n");
         break;
         case 4:
             game->etat = FIN_JEU;
-            printf("Fin du jeu\n");
         break;
     }
 }
 
+// Gère le choix du joueur sur le menu
 void changement_touche_menu(game_t * game, SDL_Keycode key, tank_t * tank, obus_t * obus ) {
-    printf("Mode de jeu ? %d\n", game->choix_menu );
     if (game->choix_menu == -1) {
         game->choix_menu = 0;
         return;
@@ -175,7 +169,7 @@ void changement_touche_menu(game_t * game, SDL_Keycode key, tank_t * tank, obus_
         break;
     }
 }
-
+// gère les déplacement de la souris
 void deplacement_souris_menu(game_t * game, int x, int y) {
     if (x > 8*TAILLE && x < 28*TAILLE && y > 20*TAILLE && y < 28*TAILLE) {
         game->choix_menu = 0;
@@ -192,7 +186,7 @@ void deplacement_souris_menu(game_t * game, int x, int y) {
     }
 
 }
-
+// chpix fin du jeu
 void changement_touche_fin_jeu(game_t * game, SDL_Keycode key, tank_t * tank_liste, obus_t * liste_obus){
     Mix_HaltMusic();
      switch (key) {

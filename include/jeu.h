@@ -66,7 +66,6 @@ struct tank_t {
     int etat;
 
     int blindage_orig;
-    int nb_hit;
 
     struct tank_t * nxt;
 };
@@ -102,6 +101,8 @@ struct game_t{
     int difficulte;
     int choix_menu;
 
+    int nb_bonus;
+
     int tank_restant[3];
 
     int nb_tank;
@@ -115,6 +116,7 @@ struct game_t{
     Mix_Chunk * effets[2];
 
     tank_t * tail;
+    tank_t * head;
 
     int cpt;
     int temps_tick;

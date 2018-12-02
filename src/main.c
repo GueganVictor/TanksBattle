@@ -17,13 +17,6 @@
 #include "dev_tools.h"
 #include "gestion_clavier.h"
 
-/*
-faut compiler avec -g
-et si t'as une erreur de segmentation
-tu fait :
-gdb
-gdb nomdelexec
-*/
 
 SDL_Renderer * initialisation_SDL(SDL_Window * window) {
     srand(time(NULL));
@@ -65,15 +58,14 @@ int main(int argc, char *argv[])
     tank_t joueur = {
         .num_tank = 0,
         .direction = 'N',
-        .pos_lig = 15,
-        .pos_col = 1,
+        .pos_lig = 40,
+        .pos_col = 25,
         .blindage = 3,
 
         .type = 'J',
         .etat = EN_VIE,
 
         .blindage_orig = 3,
-        .nb_hit = 0,
 
         .nxt = NULL
     };
@@ -86,8 +78,11 @@ int main(int argc, char *argv[])
         .difficulte = NON_DEFINI,
         .choix_menu = 0,
         .tanks_tue = 0,
-        .tail = &joueur
+        .tail = &joueur,
+        .head = &joueur
     };
+
+    tank_update(&game, &joueur, 'T');
 
     if (!init_sons (&game) ) {
         printf("Erreur dans le chargement des fichiers sons !\n");
@@ -108,13 +103,14 @@ int main(int argc, char *argv[])
 
     int temps_tir_joueur = 0;
     game.temps_tick = 0;
-    int temps = 0;
+    int temps_ajout_tank = 0;
     int temps_tir_enemi = 0;
     int temps_change_etat = 0;
     int temps_deplacement = 0;
     int temps_deplacement_obus = 0;
     int temps_maj_obus = 0;
     int temps_render = 0;
+    int temps_bonus = 0;
     SDL_Event e;
     game.cpt = 0;
     while (game.etat != FIN_JEU) {
@@ -165,7 +161,7 @@ int main(int argc, char *argv[])
                     change_etat_tank(&joueur, &game);
                     temps_change_etat = SDL_GetTicks();
                 }
-                if (SDL_GetTicks() >= temps_deplacement + 10*TICKRATE ) {
+                if (SDL_GetTicks() >= temps_deplacement + (10-(game.difficulte))*TICKRATE ) {
                     deplacer_tanks(&joueur, &game);
                     temps_deplacement = SDL_GetTicks();
                 }
@@ -181,9 +177,13 @@ int main(int argc, char *argv[])
                     tirer_enemi(&joueur, &game, &obus);
                     temps_tir_enemi = SDL_GetTicks();
                 }
-                if (SDL_GetTicks() >= temps + 1000*TICKRATE) {
+                if (SDL_GetTicks() >= temps_ajout_tank + (350-(game.difficulte*75))*TICKRATE) {
                     ajouter_tank(&joueur, &game);
-                    temps = SDL_GetTicks();
+                    temps_ajout_tank = SDL_GetTicks();
+                }
+                if (SDL_GetTicks() >= temps_bonus + 1000*TICKRATE) {
+                    ajouter_bonus(&game);
+                    temps_bonus = SDL_GetTicks();
                 }
                 verif_victoire (&game);
             break;

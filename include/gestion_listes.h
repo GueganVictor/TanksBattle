@@ -15,6 +15,8 @@ void supprimerObus(obus_t* liste, int valeur);
 
 void deplacer_simple_obus(obus_t * obus, game_t * game, obus_t * liste, tank_t * liste_tank);
 
+void appliquer_bonus (game_t * game);
+
 void change_etat_tank(tank_t * liste_tank, game_t * game);
 
 void deplacer_obus (tank_t * tank, game_t * game, obus_t * liste);

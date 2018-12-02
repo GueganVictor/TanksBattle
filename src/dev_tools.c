@@ -1,7 +1,6 @@
 #include "jeu.h"
 
 void print_tps (game_t * game) {
-
     if (SDL_GetTicks() > game->temps_tick + 1000 ) {
             printf("TPS : %d\n", game->cpt );
             game->temps_tick = SDL_GetTicks();

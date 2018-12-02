@@ -11,7 +11,7 @@
 #include "gestion_editeur.h"
 #include "gestion_listes.h"
 #include "dev_tools.h"
-
+// charge les textures
 void init_image (SDL_Renderer * renderer, game_t * game) {
 
     SDL_Surface * surface;
@@ -43,7 +43,7 @@ void init_image (SDL_Renderer * renderer, game_t * game) {
     SDL_FreeSurface( surface );
 
 }
-
+// charge les sons
 int init_sons (game_t * game) {
     game->music = Mix_LoadMUS("res/theme.mp3");
     game->effets[0] = Mix_LoadWAV("res/button.wav");
@@ -56,9 +56,8 @@ int init_sons (game_t * game) {
     return 1;
 
 }
-
+// remet a zéro le jeu
 void reset_game (game_t * game, tank_t * liste_tank, obus_t * liste_obus) {
-    printf("Remise a zéro du jeu.\n");
     if (liste_obus->nxt != NULL) {
         free_liste_obus(liste_obus->nxt, game);
     }
@@ -69,16 +68,14 @@ void reset_game (game_t * game, tank_t * liste_tank, obus_t * liste_obus) {
 
     liste_tank->num_tank = 0;
     liste_tank->direction = 'N';
-    liste_tank->pos_lig = 15;
-    liste_tank->pos_col = 1;
+    liste_tank->pos_lig = 40;
+    liste_tank->pos_col = 25;
     liste_tank->blindage = 3;
 
     liste_tank->type = 'J';
     liste_tank->etat = EN_VIE;
 
     liste_tank->blindage_orig = 3;
-    liste_tank->nb_hit = 0;
-
     liste_tank->nxt = NULL;
 
     game->tab = create_tab(HAUTEUR_TAB, LARGEUR_TAB, "res/map.data");
@@ -89,19 +86,34 @@ void reset_game (game_t * game, tank_t * liste_tank, obus_t * liste_obus) {
     game->choix_menu = 0;
     game->tanks_tue = 0;
     game->tail = liste_tank;
+    game->tail = liste_tank;
 
     liste_obus->num_obus = -1;
     liste_obus->nxt = NULL;
 
 }
-
+// affiche victoire
 void verif_victoire (game_t * game) {
     if (NB_TANKS - game->tanks_tue < 1) {
         printf("Partie finie, gagné !");
         game->etat = GAME_WON;
     }
 }
-
+// BONUS
+void ajouter_bonus (game_t * game) {
+    int b = 1;
+    if ( game->nb_bonus > 0) {
+        while (b) {
+            int lig = rand() % (HAUTEUR_TAB-1);
+            int col = rand() % (LARGEUR_TAB-1);
+            if (game->tab[lig][col] == '.') {
+                game->tab[lig][col] = 'A';
+                b = 0;
+            }
+        }
+    }
+}
+// réglage des difficultes
 void application_difficulte(game_t * game, int difficulte, tank_t * liste_tank, obus_t * liste_obus) {
 
     switch (game->difficulte) {
@@ -111,6 +123,7 @@ void application_difficulte(game_t * game, int difficulte, tank_t * liste_tank, 
                 game->tank_restant[0] = 15;
                 game->tank_restant[1] = 12;
                 game->tank_restant[2] =  3;
+                game->nb_bonus = 7;
                 game->difficulte = FACILE;
                 game->etat = EN_JEU;
             }
@@ -121,6 +134,7 @@ void application_difficulte(game_t * game, int difficulte, tank_t * liste_tank, 
                 game->tank_restant[0] = 5;
                 game->tank_restant[1] = 10;
                 game->tank_restant[2] = 15;
+                game->nb_bonus = 5;
                 game->difficulte = DIFFICILE;
                 game->etat = EN_JEU;
             }
@@ -131,24 +145,33 @@ void application_difficulte(game_t * game, int difficulte, tank_t * liste_tank, 
                 game->tank_restant[0] = 0;
                 game->tank_restant[1] = 10;
                 game->tank_restant[2] = 20;
+                game->nb_bonus = 3;
                 game->difficulte = INFERNO;
                 game->etat = EN_JEU;
             }
         break;
         case NON_DEFINI:
-            printf("yo\n");
             switch (difficulte) {
                 case FACILE:
                     game->tank_restant[0] = 15;
                     game->tank_restant[1] = 12;
                     game->tank_restant[2] =  3;
+                    game->nb_bonus = 7;
                     game->difficulte = FACILE;
                 break;
                 case DIFFICILE:
                     game->tank_restant[0] = 5;
                     game->tank_restant[1] = 10;
                     game->tank_restant[2] = 15;
+                    game->nb_bonus = 5;
                     game->difficulte = DIFFICILE;
+                break;
+                case INFERNO:
+                    game->tank_restant[0] = 0;
+                    game->tank_restant[1] = 10;
+                    game->tank_restant[2] = 20;
+                    game->nb_bonus = 3;
+                    game->difficulte = INFERNO;
                 break;
             }
         break;
