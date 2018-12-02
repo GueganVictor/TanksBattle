@@ -24,7 +24,7 @@ Si vous êtes sous Windows, je vous conseille de suivre ce tuto de LazyFoo Produ
 
 L'application étant principalement désignée pour un système Linux, il y a des risques de bugs, incompatibilité avec Windows.
 
-### &nbsp;&nbsp;Installation :
+### &nbsp;&nbsp;Lancement :
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;Pour lancer le jeu, faites :
 
